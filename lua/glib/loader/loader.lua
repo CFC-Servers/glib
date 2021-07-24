@@ -494,7 +494,7 @@ elseif CLIENT then
 				GLib.Loader.RunPackFile ("m", packFileSystem,
 					function ()
 						i = i + 1
-						runNextPackFile ()
+						timer.Simple( 4, runNextPackFile )
 					end
 				)
 			end
@@ -505,7 +505,7 @@ elseif CLIENT then
 	
 	GLib.WaitForLocalPlayer (
 		function ()
-			timer.Simple (5,
+			timer.Simple ( 7.5,
 				function ()
 					RunConsoleCommand ("glib_request_pack")
 				end
