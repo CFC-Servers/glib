@@ -9,12 +9,13 @@ end
 
 if CLIENT then
 	CreateClientConVar ("glib_use_local_files", 0, true, false)
+	CreateClientConVar ("glib_tmp_should_load", 0, true, false)
 end
 
 function GLib.Loader.CompileFile (path)
 	local _, compiled = GLib.Loader.File.Read (path, "LUA")
 	if compiled then return compiled end
-	
+
 	return CompileFile (path)
 end
 
@@ -494,7 +495,7 @@ elseif CLIENT then
 				GLib.Loader.RunPackFile ("m", packFileSystem,
 					function ()
 						i = i + 1
-						timer.Simple( 4, runNextPackFile )
+						timer.Simple( 3, runNextPackFile )
 					end
 				)
 			end
@@ -507,6 +508,9 @@ elseif CLIENT then
 		function ()
 			timer.Simple ( 7.5,
 				function ()
+					local shouldLoad = GetConVar("glib_tmp_should_load"):GetBool()
+					if not shouldLoad then return end
+
 					RunConsoleCommand ("glib_request_pack")
 				end
 			)
