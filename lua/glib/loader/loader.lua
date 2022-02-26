@@ -393,17 +393,17 @@ GLib.Transfers.RegisterInitialPacketHandler ("GLib.LuaPack",
 )
 
 if SERVER then
-	concommand.Add ("glib_request_pack",
-		function (ply)
-			if not ply or not ply:IsValid () then return end
+	local function loadPlayerGlib( ply )
+		if not ply or not ply:IsValid () then return end
 			
-			GLib.Loader.PackFileManager:GenerateResources ()
-			
-			local outBuffer = GLib.StringOutBuffer ()
-			GLib.Loader.PackFileManager:SerializeManifest (outBuffer)
-			GLib.Transfers.Send (GLib.GetPlayerId (ply), "GLib.Loader.Manifest", outBuffer:GetString ())
-		end
-	)
+		GLib.Loader.PackFileManager:GenerateResources ()
+		
+		local outBuffer = GLib.StringOutBuffer ()
+		GLib.Loader.PackFileManager:SerializeManifest (outBuffer)
+		GLib.Transfers.Send (GLib.GetPlayerId (ply), "GLib.Loader.Manifest", outBuffer:GetString ())
+	end
+	concommand.Add ("glib_request_pack", loadPlayerGlib )
+	concommand.Add ("glib_enable", loadPlayerGlib )
 elseif CLIENT then
 	GLib.Transfers.RegisterHandler ("GLib.Loader.Manifest",
 		function (userId, data)
