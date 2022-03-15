@@ -494,7 +494,7 @@ elseif CLIENT then
 				GLib.Loader.RunPackFile ("m", packFileSystem,
 					function ()
 						i = i + 1
-						runNextPackFile ()
+						timer.Simple(5, runNextPackFile)
 					end
 				)
 			end
