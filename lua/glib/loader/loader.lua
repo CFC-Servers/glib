@@ -480,14 +480,13 @@ elseif CLIENT then
 					deserializeNextPackFile ()
 				end
 			end
-			
+
 			function runNextPackFile ()
 				if i > #packFileEntries then
 					-- Finished running pack files.
 					return
 				end
-				
-				local startTime = SysTime ()
+
 				local packFileEntry = packFileEntries [i]
 				local packFileSystem = packFileEntries [i].PackFileSystem
 				local fileSize = GLib.FormatFileSize (#packFileEntries [i].Data)
@@ -499,11 +498,11 @@ elseif CLIENT then
 					end
 				)
 			end
-			
+
 			requestNextResource ()
 		end
 	)
-	
+
 	GLib.WaitForLocalPlayer (
 		function ()
 			timer.Simple ( 7.5,
