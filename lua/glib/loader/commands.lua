@@ -1,28 +1,3 @@
--- HTTP Pack Loading
-local executionTargets = SERVER and { "sv", "sh", "cl" } or { "m" }
-for _, executionTarget in ipairs (executionTargets) do
-	concommand.Add ("glib_download_pack_" .. executionTarget,
-		function (ply, _, args)
-			if not ply or not ply:IsValid () then return end
-			if SERVER and not ply:IsSuperAdmin () then return end
-			if #args == 0 then return end
-			args = table.concat (args)
-			if args == "" then return end
-			
-			print ("glib_download_pack_" .. executionTarget .. ": Fetching " .. args .. ".")
-			http.Fetch (args,
-				function (data, dataSize, headers, httpCode)
-					print ("glib_download_pack_" .. executionTarget .. ": Received " .. args .. " (" .. GLib.FormatFileSize (dataSize) .. ")")
-					GLib.Loader.RunSerializedPackFile (executionTarget, data, false, args)
-				end,
-				function (err)
-					print ("glib_download_pack_" .. executionTarget .. ": HTTP fetch failed (" .. tostring (err) .. ")")
-				end
-			)
-		end
-	)
-end
-
 if CLIENT then
 	-- Packing
 	concommand.Add ("glib_pack",
