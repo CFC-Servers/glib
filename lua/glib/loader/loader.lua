@@ -481,6 +481,7 @@ elseif CLIENT then
 			function runNextPackFile ()
 				if i > #packFileEntries then
 					-- Finished running pack files.
+					MsgN ("GLib.Loader : Ran all pack files!")
 					return
 				end
 
@@ -491,9 +492,9 @@ elseif CLIENT then
 				MsgN ("GLib.Loader : Running pack file \"" .. packFileSystem:GetName () .. "\", deserialization took " .. GLib.FormatDuration (packFileEntry.DeserializationDuration) .. " (" .. packFileSystem:GetFileCount () .. " total files, " .. fileSize .. ").")
 				GLib.Loader.RunPackFile ("m", packFileSystem,
 					function ()
-					    print ("Ran pack file " .. packFileSystem:GetName () .. " in " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
+						MsgN ("GLib.Loader : Ran pack file " .. packFileSystem:GetName () .. " in " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
 						i = i + 1
-						GLib.CallDelayed (runNextPackFile, 1.5)
+						GLib.CallDelayed (runNextPackFile, 1.75)
 					end
 				)
 			end

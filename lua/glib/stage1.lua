@@ -297,7 +297,7 @@ function GLib.IncludeDirectory (folder, recursive)
 	end
 end
 
-function GLib.IncludeDirectoryAsync( path, recursive )
+function GLib.IncludeDirectoryAsync( path, recursive, delay )
 	print( "IncludeDirectoryAsync", path )
 	local GLibInclude = GLib.Loader.Include
 
@@ -308,6 +308,7 @@ function GLib.IncludeDirectoryAsync( path, recursive )
 	GLib.IncludeDirectory( path, recursive )
 	GLib.Loader.Include = GLibInclude
 
+	delay = delay or 0.075
 	for i = 1, #queue do
 		local isLast = i == #queue
 		local item = queue[i]
@@ -317,7 +318,7 @@ function GLib.IncludeDirectoryAsync( path, recursive )
 			if isLast then
 				print( "IncludeDirectoryAsync from:", path, " finished." )
 			end
-		end, 0.075 )
+		end, delay )
 	end
 end
 
