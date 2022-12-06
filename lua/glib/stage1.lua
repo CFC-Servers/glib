@@ -298,28 +298,23 @@ function GLib.IncludeDirectory (folder, recursive)
 end
 
 function GLib.IncludeDirectoryAsync( path, recursive, delay )
-	print( "IncludeDirectoryAsync", path )
+	delay = delay or 0.075
+
+	-- Wrap the include function that IncludeDirectory uses
 	local GLibInclude = GLib.Loader.Include
 
-	local queue = {}
+	-- Hijack the Includes and delay them
 	GLib.Loader.Include = function( includePath )
-		table.insert( queue, includePath )
-	end
-	GLib.IncludeDirectory( path, recursive )
-	GLib.Loader.Include = GLibInclude
-
-	delay = delay or 0.075
-	for i = 1, #queue do
-		local isLast = i == #queue
-		local item = queue[i]
 		GLib.CallDelayed( function()
-			GLibInclude( item )
-
-			if isLast then
-				print( "IncludeDirectoryAsync from:", path, " finished." )
-			end
+			GLibInclude( includePath )
 		end, delay )
 	end
+
+	-- Run the original function
+	GLib.IncludeDirectory( path, recursive )
+
+	-- Restore the Include function
+	GLib.Loader.Include = GLibInclude
 end
 
 function GLib.InvertTable (tbl, out)
