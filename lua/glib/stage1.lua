@@ -297,6 +297,30 @@ function GLib.IncludeDirectory (folder, recursive)
 	end
 end
 
+function GLib.IncludeDirectoryAsync( path, recursive )
+	print( "IncludeDirectoryAsync", path )
+	local GLibInclude = GLib.Loader.Include
+
+	local queue = {}
+	GLib.Loader.Include = function( includePath )
+		table.insert( queue, includePath )
+	end
+	GLib.IncludeDirectory( path, recursive )
+	GLib.Loader.Include = GLibInclude
+
+	for i = 1, #queue do
+		local isLast = i == #queue
+		local item = queue[i]
+		GLib.CallDelayed( function()
+			GLibInclude( item )
+
+			if isLast then
+				print( "IncludeDirectoryAsync from:", path, " finished." )
+			end
+		end, 0.075 )
+	end
+end
+
 function GLib.InvertTable (tbl, out)
 	out = out or {}
 	

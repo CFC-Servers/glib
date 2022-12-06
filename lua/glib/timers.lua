@@ -1,14 +1,14 @@
 local delayedCalls = {}
 GLib.SlowDelayedCalls = {}
 
-function GLib.CallDelayed (callback)
+function GLib.CallDelayed (callback, delay)
 	if not callback then return end
 	if type (callback) ~= "function" then
 		GLib.Error ("GLib.CallDelayed : callback must be a function!")
 		return
 	end
 	
-	delayedCalls [#delayedCalls + 1] = callback
+	table.insert (delayedCalls, {callback, delay})
 end
 
 function GLib.PolledWait (interval, timeout, predicate, callback)
@@ -29,19 +29,25 @@ function GLib.PolledWait (interval, timeout, predicate, callback)
 	)
 end
 
+local paused = false
 hook.Add ("Think", "GLib.DelayedCalls",
 	function ()
-		local lastCalled = nil
+		if paused then return end
+
+		local func, delay
 		local startTime = SysTime ()
-		while SysTime () - startTime < 0.005 and #delayedCalls > 0 do
-			lastCalled = delayedCalls [1]
-			xpcall (delayedCalls [1], GLib.Error)
-			table.remove (delayedCalls, 1)
-		end
-		
-		if SysTime () - startTime > 0.2 and lastCalled then
-			MsgN ("GLib.DelayedCalls : " .. tostring (lastCalled) .. " took " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
-			GLib.SlowDelayedCalls [#GLib.SlowDelayedCalls + 1] = lastCalled
+		while SysTime () - startTime < 0.0025 and #delayedCalls > 0 do
+			func, delay = unpack(table.remove(delayedCalls, 1))
+			xpcall (func, GLib.Error)
+
+			if delay then
+				paused = true
+				timer.Simple (delay, function()
+					paused = false
+				end )
+
+				break
+			end
 		end
 	end
 )
