@@ -37,12 +37,14 @@ function self:ctor (playerMonitor, playerMonitorId)
 	GLib.CallDelayed (
 		function ()
 			for userId, ply in self.PlayerMonitor:GetPlayerEnumerator () do
-				local isLocalPlayer = GLib.GetPlayerId (ply) == GLib.GetLocalId ()
-				
-				self:DispatchEvent ("PlayerConnected", ply, userId, isLocalPlayer)
-				
-				if isLocalPlayer then
-					self:DispatchEvent ("LocalPlayerConnected", ply, userId)
+				if IsValid (ply) then
+					local isLocalPlayer = GLib.GetPlayerId (ply) == GLib.GetLocalId ()
+
+					self:DispatchEvent ("PlayerConnected", ply, userId, isLocalPlayer)
+
+					if isLocalPlayer then
+						self:DispatchEvent ("LocalPlayerConnected", ply, userId)
+					end
 				end
 			end
 		end
