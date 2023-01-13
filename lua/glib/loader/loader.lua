@@ -482,6 +482,7 @@ elseif CLIENT then
 				if i > #packFileEntries then
 					-- Finished running pack files.
 					MsgN ("GLib.Loader : Ran all pack files!")
+					GLib.Loader.AllPacksLoaded = true
 					return
 				end
 
