@@ -9,7 +9,7 @@ end
 
 if CLIENT then
 	CreateClientConVar ("glib_use_local_files", 0, true, false)
-	CreateClientConVar ("glib_tmp_should_load", 0, true, false)
+	CreateClientConVar ("glib_autoload_enabled", 0, true, false)
 end
 
 function GLib.Loader.CompileFile (path)
@@ -508,9 +508,7 @@ elseif CLIENT then
 		function ()
 			timer.Simple ( 7.5,
 				function ()
-					local shouldLoad = GetConVar("glib_tmp_should_load"):GetBool()
-					if not shouldLoad then return end
-
+					if not GetConvar( "glib_autoload_enabled" ):GetBool() then return end
 					RunConsoleCommand ("glib_request_pack")
 				end
 			)
