@@ -509,7 +509,7 @@ elseif CLIENT then
 		function ()
 			timer.Simple (5,
 				function ()
-					if not GetConvar( "glib_autoload_enabled" ):GetBool() then return end
+					if not GetConVar( "glib_autoload_enabled" ):GetBool() then return end
 					RunConsoleCommand ("glib_request_pack")
 				end
 			)
