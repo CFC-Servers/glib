@@ -165,7 +165,8 @@ GLib.Loader.Environment = setmetatable (
 		AddCSLuaFile = function () end,
 		file         = GLib.Loader.File,
 		include      = GLib.Loader.Include,
-		CompileFile  = GLib.Loader.CompileFile
+		CompileFile  = GLib.Loader.CompileFile,
+		gfile        = _G.file,
 	},
 	{
 		__index = getfenv (),
@@ -496,7 +497,7 @@ elseif CLIENT then
 					function ()
 						MsgN ("GLib.Loader : Ran pack file " .. packFileSystem:GetName () .. " in " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
 						i = i + 1
-						GLib.CallDelayed (runNextPackFile, 1.75)
+						GLib.CallDelayed (runNextPackFile)
 					end
 				)
 			end

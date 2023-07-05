@@ -37,17 +37,17 @@ hook.Add ("Think", "GLib.DelayedCalls",
 		local func, delay
 		local startTime = SysTime ()
 		while SysTime () - startTime < 0.0025 and #delayedCalls > 0 do
-			func, delay = unpack(table.remove(delayedCalls, 1))
+			func, _ = unpack(table.remove(delayedCalls, 1))
 			xpcall (func, GLib.Error)
 
-			if delay then
-				paused = true
-				timer.Simple (delay, function()
-					paused = false
-				end )
+			-- if delay then
+			-- 	paused = true
+			-- 	timer.Simple (delay, function()
+			-- 		paused = false
+			-- 	end )
 
-				break
-			end
+			-- 	break
+			-- end
 		end
 	end
 )
