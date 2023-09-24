@@ -487,8 +487,6 @@ GLib.AddCSLuaFolderRecursive ("glib/transfers")
 GLib.AddCSLuaFolderRecursive ("glib/resources")
 GLib.AddCSLuaFolderRecursive ("glib/loader")
 
-GLib.AddCSLuaFile ("glib/addons.lua")
-
 -- Stage 2
 GLib.AddCSLuaPackSystem ("GLib")
 GLib.AddCSLuaPackFile ("autorun/glib.lua")

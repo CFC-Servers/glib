@@ -329,9 +329,6 @@ include ("databases/mysqloodatabase.lua")
 include ("parsing/stringparser.lua")
 include ("parsing/durationparser.lua")
 
--- Addons
-include ("addons.lua")
-
 GLib.CallDelayed (
 	function ()
 		hook.Call ("GLibSystemLoaded", GAMEMODE or GM, "GLibStage2")
