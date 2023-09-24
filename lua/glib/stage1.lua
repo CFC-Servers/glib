@@ -297,17 +297,15 @@ function GLib.IncludeDirectory (folder, recursive)
 	end
 end
 
-function GLib.IncludeDirectoryAsync( path, recursive, delay )
-	delay = delay or 0.075
-
+function GLib.IncludeDirectoryAsync( path, recursive )
 	-- Wrap the include function that IncludeDirectory uses
 	local GLibInclude = GLib.Loader.Include
 
-	-- Hijack the Includes and delay them
+	-- Hijack the Includes and queue them
 	GLib.Loader.Include = function( includePath )
 		GLib.CallDelayed( function()
 			GLibInclude( includePath )
-		end, delay )
+		end )
 	end
 
 	-- Run the original function
