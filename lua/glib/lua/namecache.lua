@@ -80,11 +80,17 @@ local tableNameBlacklist =
 	["panelWidget"] = true,
 	["guiP_colourScheme"] = true,
 	["_R.LOADED.derma"] = true,
+	["derma"] = true,
+	["_R.LOADED.matproxy.ActiveList"] = true,
+	["matproxy.ActiveList"] = true,
 	["motionsensor"] = true,
+	["stars"] = true,
 
 	["xgui.hook"] = true,
-	["xgui.data.motdsettings"] = true,
 	["xgui.data.users"] = true,
+	["xgui.data.teams"] = true,
+	["xgui.data.accesses"] = true,
+	["xgui.data.motdsettings"] = true,
 
 	-- GLib
 	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
@@ -107,6 +113,10 @@ local tableNameBlacklist =
 	["pac.PartTemplates"] = true,
 	["pac.VariableOrder"] = true,
 	["pac.added_hooks"] = true,
+	["pac.registered_parts"] = true,
+	["pac.emut.registered_mutators"] = true,
+	["pac.EventArgumentCache"] = true,
+	["pac.animations.registered"] = true,
 
 	-- VFS
 	["VFS.RealRoot"] = true,
@@ -141,19 +151,25 @@ local tableNameBlacklist =
 	-- Wire
 	["WireGatesSorted"] = true,
 	["E2Lib.optable"] = true,
+	["EGP.Objects"] = true,
+	["GateActions"] = true,
 
 	-- CW2
+	["CustomizableWeaponry.sights"] = true,
+	["CustomizableWeaponry.suppressors"] = true,
+	["CustomizableWeaponry.shells.cache"] = true,
+	["CustomizableWeaponry.registeredAttachments"] = true,
 	["CustomizableWeaponry.registeredAttachmentsSKey"] = true,
 
-	-- URS
-	["urs.weapons"] = true,
-
 	-- Starfall
-	["SF.Permissions.settings"] = true,
+	["SF.Permissions"] = true,
 
 	-- CFC
 	["cfcEntityStubber.oldWeaponStats"] = true,
 	["gScoreboard.FancyGroups"] = true,
+	["SH_ANTICRASH.VARS"] = true,
+	["SH_ANTICRASH.SETTINGS"] = true,
+	["CustomPropInfo.Entries"] = true,
 
 	-- Other
 	["gb.Bitflags"] = true,
@@ -163,6 +179,14 @@ local tableNameBlacklist =
 	["ACF.Hitboxes"] = true,
 	["ACF.Tools"] = true,
 	["ULib.translatedCmds"] = true,
+	["ULib.cmds.translatedCmds"] = true,
+	["ULib.ucl.authed"] = true,
+	["Primitive.classes"] = true,
+	["webaudio.streams"] = true,
+	["urs.weapons"] = true,
+	["prop2mesh.recycle"] = true,
+	["simfphys.LFS"] = true,
+	["Radial.radialToolPresets"] = true,
 }
 
 local numericTableNameBlacklist =
