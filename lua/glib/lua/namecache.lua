@@ -77,6 +77,14 @@ local tableNameBlacklist =
 	["chatsounds.SortedList"] = true,
 	["chatsounds.SortedList2"] = true,
 	["chatsounds.SortedListKeys"] = true,
+	["panelWidget"] = true,
+	["guiP_colourScheme"] = true,
+	["_R.LOADED.derma"] = true,
+	["motionsensor"] = true,
+
+	["xgui.hook"] = true,
+	["xgui.data.motdsettings"] = true,
+	["xgui.data.users"] = true,
 
 	-- GLib
 	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
@@ -96,6 +104,9 @@ local tableNameBlacklist =
 	["pac.UniqueIDParts"] = true,
 	["pac.webaudio.streams"] = true,
 	["pace.example_outfits"] = true,
+	["pac.PartTemplates"] = true,
+	["pac.VariableOrder"] = true,
+	["pac.added_hooks"] = true,
 
 	-- VFS
 	["VFS.RealRoot"] = true,
@@ -105,6 +116,7 @@ local tableNameBlacklist =
 	["GAuth.Net"] = true,
 	["GAuth.Groups"] = true,
 	["GAuth.Loader"] = true,
+	["GAuth.Colors"] = true,
 	["GAuth.Protocol"] = true,
 	["GAuth.Lua:Opcodes"] = true,
 
@@ -119,8 +131,38 @@ local tableNameBlacklist =
 	["NikNaks.CurrentMap._staticprops"] = true,
 	["NikNaks.CurrentMap._lumpheader"] = true,
 
-	-- GangBox
+	-- Stream Radio
+	["StreamRadioLib.Settings"] = true,
+
+	-- TFA
+	["TFA.DataVersionMapping"] = true,
+	["TFA.Attachments"] = true,
+
+	-- Wire
+	["WireGatesSorted"] = true,
+	["E2Lib.optable"] = true,
+
+	-- CW2
+	["CustomizableWeaponry.registeredAttachmentsSKey"] = true,
+
+	-- URS
+	["urs.weapons"] = true,
+
+	-- Starfall
+	["SF.Permissions.settings"] = true,
+
+	-- CFC
+	["cfcEntityStubber.oldWeaponStats"] = true,
+	["gScoreboard.FancyGroups"] = true,
+
+	-- Other
 	["gb.Bitflags"] = true,
+	["HoverboardTypes"] = true,
+	["MKeyboard"] = true,
+	["ACF.DataCallbacks"] = true,
+	["ACF.Hitboxes"] = true,
+	["ACF.Tools"] = true,
+	["ULib.translatedCmds"] = true,
 }
 
 local numericTableNameBlacklist =
