@@ -69,6 +69,7 @@ end
 
 local tableNameBlacklist =
 {
+	-- Base GMod
 	["chathud.lines"] = true,
 	["chathud.markup.chunks"] = true,
 	["chatsounds.ac.words"] = true,
@@ -76,35 +77,58 @@ local tableNameBlacklist =
 	["chatsounds.SortedList"] = true,
 	["chatsounds.SortedList2"] = true,
 	["chatsounds.SortedListKeys"] = true,
-	["CAC.LuaWhitelistController.DynamicLuaInformation"] = true,
-	["CAC.LuaWhitelistController.StaticLuaInformation"] = true,
-	["GAuth.Groups"] = true,
-	["GCAD.JITInfo"] = true,
-	["GCAD.NavigationGraphEntityList.NavigationGraphNodeEntityList"] = true,
-	["GCAD.NavigationGraphEntityList.NavigationGraphEdgeEntityList"] = true,
-	["GCAD.NavigationGraphRenderer"] = true,
-	["GCAD.RootSceneGraph"] = true,
+
+	-- GLib
 	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
 	["GLib.Lua.FunctionCache"] = true,
+
+	-- GCompute
 	["GCompute.GlobalNamespace"] = true,
 	["GCompute.IDE.Instance.DocumentManager"] = true,
 	["GCompute.IDE.Instance.ViewManager"] = true,
 	["GCompute.LanguageDetector.Extensions"] = true,
 	["GCompute.Languages.Languages.GLua.EditorHelper.RootNamespace"] = true,
 	["GCompute.TypeSystem"] = true,
+
+	-- PAC
 	["pac.ActiveParts"] = true,
 	["pac.OwnedParts"] = true,
 	["pac.UniqueIDParts"] = true,
 	["pac.webaudio.streams"] = true,
 	["pace.example_outfits"] = true,
+
+	-- VFS
 	["VFS.RealRoot"] = true,
-	["VFS.Root"] = true
+	["VFS.Root"] = true,
+
+	-- GAuth
+	["GAuth.Net"] = true,
+	["GAuth.Groups"] = true,
+	["GAuth.Loader"] = true,
+	["GAuth.Protocol"] = true,
+	["GAuth.Lua:Opcodes"] = true,
+
+	-- MNM
+	["MNM.Models.mapModelMeshes"] = true,
+	["MNM.Queue.waitingForMateria"] = true,
+	["MNM.Materials.mapMaterialData"] = true,
+
+	-- NikNaks
+	["NikNaks.CurrentMap.staticPropsByModel"] = true,
+	["NikNaks.CurrentMap._entities"] = true,
+	["NikNaks.CurrentMap._staticprops"] = true,
+	["NikNaks.CurrentMap._lumpheader"] = true,
+
+	-- GangBox
+	["gb.Bitflags"] = true,
 }
 
 local numericTableNameBlacklist =
 {
 	["_R"] = true
 }
+
+local debug_getmetatable = debug.getmetatable
 
 function self:ProcessTable (table, tableName, dot)
 	if tableNameBlacklist [tableName] then return end
@@ -113,6 +137,13 @@ function self:ProcessTable (table, tableName, dot)
 	local state = self:GetState ()
 	local nameCache = state.NameCache
 	local queuedTables = state.QueuedTables
+
+	local IsValidVariableName = GLib.Lua.IsValidVariableName
+	local IsStaticTable = GLib.IsStaticTable
+	local GetMetaTable = GLib.GetMetaTable
+	local QueueIndex = self.QueueIndex
+	local type = type
+	local tostring = tostring
 	
 	for k, v in pairs (table) do
 		GLib.CheckYield ()
@@ -127,7 +158,7 @@ function self:ProcessTable (table, tableName, dot)
 			if valueType == "function" or
 			   valueType == "table" then
 				if keyType ~= "string" or
-				   not GLib.Lua.IsValidVariableName (k) then
+				   not IsValidVariableName (k) then
 					if keyType == "table" then
 						-- ¯\_(ツ)_/¯
 					end
@@ -142,22 +173,22 @@ function self:ProcessTable (table, tableName, dot)
 			-- Recurse
 			if valueType == "table" then
 				if not queuedTables [v] then
-					self:QueueIndex (v, memberName)
+					QueueIndex (self, v, memberName)
 					
 					-- Check if this is a GLib class
-					if GLib.IsStaticTable (v) then
-						local metatable = GLib.GetMetaTable (v)
+					if IsStaticTable (v) then
+						local metatable = GetMetaTable (v)
 						if type (metatable) == "table" then
 							nameCache [metatable] = nameCache [metatable] or memberName
-							self:QueueIndex (GLib.GetMetaTable (v), memberName, ":")
+							QueueIndex (self, GetMetaTable (v), memberName, ":")
 						end
 					else
 						-- Do the __index metatable if it exists
-						local metatable = debug.getmetatable (v)
+						local metatable = debug_getmetatable (v)
 						local __index = metatable and metatable.__index or nil
 						if __index and
 						   not queuedTables [__index] then
-							self:QueueIndex (__index, memberName, ":")
+							QueueIndex (self, __index, memberName, ":")
 						end
 					end
 				end
@@ -189,29 +220,40 @@ function self:StartIndexingThread ()
 	end
 	
 	GLib.Debug ("GLib.Lua.NameCache : Indexing thread started.")
-	
-	self.Thread = GLib.Threading.Thread ()
-	self.Thread:Start (
+
+	local SysTime = SysTime
+	local Sleep = GLib.Sleep
+	local CheckYield = GLib.CheckYield
+	local FormatDuration = GLib.FormatDuration
+	local Debug = GLib.Debug
+
+	local Thread = GLib.Threading.Thread ()
+	self.Thread = Thread
+	local GetStartTime = Thread.GetStartTime
+
+	Thread:Start (
 		function ()
-			GLib.Sleep (1000)
-			
+			Sleep (1000)
+
 			local state = self:GetState ()
-			
-			while #state.QueueTables > 0 do
-				GLib.CheckYield ()
+			local QueueTables = state.QueueTables
+			local QueueTableNames = state.QueueTableNames
+			local QueueSeparators = state.QueueSeparators
+			local table_remove = table.remove
+			local ProcessTable = self.ProcessTable
+
+			while #QueueTables > 0 do
+				CheckYield ()
 				
-				local t = state.QueueTables [1]
-				local tableName = state.QueueTableNames [1]
-				local separator = state.QueueSeparators [1]
-				
-				table.remove (state.QueueTables, 1)
-				table.remove (state.QueueTableNames, 1)
-				table.remove (state.QueueSeparators, 1)
-				
-				self:ProcessTable (t, tableName, separator)
+				local t = table_remove (QueueTables)
+				local tableName = table_remove (QueueTableNames)
+				local separator = table_remove (QueueSeparators)
+
+				Debug ("GLib.Lua.NameCache : Indexing: ", tableName)
+				ProcessTable (self, t, tableName, separator)
 			end
-			
-			GLib.Debug ("GLib.Lua.NameCache : Indexing took " .. GLib.FormatDuration (SysTime () - self.Thread:GetStartTime ()) .. ".")
+
+			Debug ("GLib.Lua.NameCache : Indexing took " .. FormatDuration (SysTime () - GetStartTime (Thread)) .. ".")
 		end
 	)
 end

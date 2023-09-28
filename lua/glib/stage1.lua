@@ -105,8 +105,10 @@ function GLib.AddReloadCommand (includePath, systemName, systemTableName)
 end
 GLib.AddReloadCommand ("glib/glib.lua", "glib", "GLib")
 
-function GLib.Debug (message)
-	-- ErrorNoHalt (message .. "\n")
+local GetConVar = GetConVar
+function GLib.Debug (...)
+	if not GetConVar ("glib_debug_prints"):GetBool() then return end
+	print (...)
 end
 
 function GLib.EnumerateDelayed (tbl, callback, finishCallback)

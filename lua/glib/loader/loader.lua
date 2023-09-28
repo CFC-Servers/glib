@@ -1,12 +1,12 @@
 GLib.Loader = {}
 GLib.Loader.File = {}
 
-local CompileString = CompileString
 
 for k, v in pairs (file) do
 	GLib.Loader.File [k] = v
 end
 
+CreateConVar ("glib_debug_prints", 0, FCVAR_ARCHIVE, "GLib Debug Prints", 0, 1)
 if CLIENT then
 	CreateClientConVar ("glib_use_local_files", 0, true, false)
 	CreateClientConVar ("glib_autoload_enabled", 0, true, false)
@@ -23,6 +23,7 @@ do
 	local string_find = string.find
 	local string_sub = string.sub
 	local isfunction = isfunction
+	local CompileString = CompileString
 	function GLib.Loader.CompileString (code, path, errorMode)
 		if string_find (code, "^\xef\xbb\xbf") then
 			code = string_sub (code, 4)
