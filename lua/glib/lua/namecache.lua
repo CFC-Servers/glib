@@ -117,6 +117,7 @@ local tableNameBlacklist =
 	["pac.emut.registered_mutators"] = true,
 	["pac.EventArgumentCache"] = true,
 	["pac.animations.registered"] = true,
+	["pac.BoneNameReplacements"] = true,
 
 	-- VFS
 	["VFS.RealRoot"] = true,
@@ -178,15 +179,19 @@ local tableNameBlacklist =
 	["ACF.DataCallbacks"] = true,
 	["ACF.Hitboxes"] = true,
 	["ACF.Tools"] = true,
+	["ACF.MenuOptions"] = true,
 	["ULib.translatedCmds"] = true,
 	["ULib.cmds.translatedCmds"] = true,
 	["ULib.ucl.authed"] = true,
+	["ulx.cmdsByCategory"] = true,
 	["Primitive.classes"] = true,
 	["webaudio.streams"] = true,
 	["urs.weapons"] = true,
 	["prop2mesh.recycle"] = true,
 	["simfphys.LFS"] = true,
 	["Radial.radialToolPresets"] = true,
+	["net.Stream.ReadStreamQueues"] = true,
+
 }
 
 local numericTableNameBlacklist =
@@ -204,15 +209,17 @@ function self:ProcessTable (table, tableName, dot)
 	local nameCache = state.NameCache
 	local queuedTables = state.QueuedTables
 
+	local CheckYield = GLib.CheckYield
+	local ToCompactLuaString = GLib.Lua.ToCompactLuaString
 	local IsValidVariableName = GLib.Lua.IsValidVariableName
 	local IsStaticTable = GLib.IsStaticTable
 	local GetMetaTable = GLib.GetMetaTable
 	local QueueIndex = self.QueueIndex
 	local type = type
 	local tostring = tostring
-	
+
 	for k, v in pairs (table) do
-		GLib.CheckYield ()
+		CheckYield ()
 		
 		local keyType = type (k)
 		local valueType = type (v)
@@ -228,14 +235,14 @@ function self:ProcessTable (table, tableName, dot)
 					if keyType == "table" then
 						-- ¯\_(ツ)_/¯
 					end
-					memberName = tableName .. " [" .. GLib.Lua.ToCompactLuaString (k) .. "]"
+					memberName = tableName .. " [" .. ToCompactLuaString (k) .. "]"
 				else
 					memberName = tableName ~= "" and (tableName .. dot .. tostring (k)) or tostring (k)
 				end
 				
 				nameCache [v] = nameCache [v] or memberName
 			end
-			
+
 			-- Recurse
 			if valueType == "table" then
 				if not queuedTables [v] then
@@ -310,13 +317,14 @@ function self:StartIndexingThread ()
 
 			while #QueueTables > 0 do
 				CheckYield ()
-				
+
 				local t = table_remove (QueueTables)
 				local tableName = table_remove (QueueTableNames)
 				local separator = table_remove (QueueSeparators)
 
-				Debug ("GLib.Lua.NameCache : Indexing: ", tableName)
+				local startTime = SysTime()
 				ProcessTable (self, t, tableName, separator)
+				Debug ("GLib.Lua.NameCache : Indexed: ", tableName, "in:", SysTime() - startTime)
 			end
 
 			Debug ("GLib.Lua.NameCache : Indexing took " .. FormatDuration (SysTime () - GetStartTime (Thread)) .. ".")
