@@ -138,6 +138,7 @@ local tableNameBlacklist =
 	["GAuth.Colors"] = true,
 	["GAuth.Protocol"] = true,
 	["GAuth.Lua:Opcodes"] = true,
+	["GAuth.Unicode:CategoryStage1"] = true,
 	["GAuth.Unicode:CategoryStage2"] = true,
 	["GAuth.Networking:NetworkableHost"] = true,
 
