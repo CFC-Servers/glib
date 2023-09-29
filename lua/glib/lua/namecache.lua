@@ -111,6 +111,7 @@ local tableNameBlacklist =
 	["GCompute.AST.NumericLiteral"] = true,
 	["GCompute.MirrorNamespace"] = true,
 	["GCompute.AST.AnonymousFunction"] = true,
+	["GComputeFileChangeNotificationBar"] = true,
 
 	-- PAC
 	["pac.ActiveParts"] = true,
@@ -123,6 +124,7 @@ local tableNameBlacklist =
 	["pac.added_hooks"] = true,
 	["pac.registered_parts"] = true,
 	["pac.emut.registered_mutators"] = true,
+	["pac.emut.active_mutators"] = true,
 	["pac.EventArgumentCache"] = true,
 	["pac.animations.registered"] = true,
 	["pac.BoneNameReplacements"] = true,
@@ -133,14 +135,15 @@ local tableNameBlacklist =
 
 	-- GAuth
 	["GAuth.Net"] = true,
+	["GAuth.UTF8"] = true,
 	["GAuth.Groups"] = true,
 	["GAuth.Loader"] = true,
 	["GAuth.Colors"] = true,
 	["GAuth.Protocol"] = true,
-	["GAuth.Lua:Opcodes"] = true,
-	["GAuth.Unicode:CategoryStage1"] = true,
-	["GAuth.Unicode:CategoryStage2"] = true,
-	["GAuth.Networking:NetworkableHost"] = true,
+	["GAuth.Lua"] = true,
+	["GAuth.Containers"] = true,
+	["GAuth.Unicode"] = true,
+	["GAuth.Networking"] = true,
 
 	-- Gooey
 	["Gooey.VPanel"] = true,
@@ -215,7 +218,8 @@ local tableNameBlacklist =
 	["NameCacheTimings"] = true,
 	["GPanel"] = true,
 	["VFS"] = true,
-
+	["MPRefreshButton"] = true,
+	["FPP.entTouchReasons"] = true,
 }
 
 local numericTableNameBlacklist =
