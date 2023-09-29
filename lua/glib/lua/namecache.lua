@@ -79,12 +79,13 @@ local tableNameBlacklist =
 	["chatsounds.SortedListKeys"] = true,
 	["panelWidget"] = true,
 	["guiP_colourScheme"] = true,
-	["_R.LOADED.derma"] = true,
+	["_R._LOADED.derma"] = true,
 	["derma"] = true,
-	["_R.LOADED.matproxy.ActiveList"] = true,
+	["_R._LOADED.matproxy.ActiveList"] = true,
 	["matproxy.ActiveList"] = true,
 	["motionsensor"] = true,
 	["stars"] = true,
+	["DComboBox.Derma"] = true,
 
 	["xgui.hook"] = true,
 	["xgui.data.users"] = true,
@@ -108,6 +109,8 @@ local tableNameBlacklist =
 	["GCompute.Net:Layer2"] = true,
 	["GCompute.Colors"] = true,
 	["GCompute.AST.NumericLiteral"] = true,
+	["GCompute.MirrorNamespace"] = true,
+	["GCompute.AST.AnonymousFunction"] = true,
 
 	-- PAC
 	["pac.ActiveParts"] = true,
@@ -135,6 +138,11 @@ local tableNameBlacklist =
 	["GAuth.Colors"] = true,
 	["GAuth.Protocol"] = true,
 	["GAuth.Lua:Opcodes"] = true,
+	["GAuth.Unicode:CategoryStage2"] = true,
+	["GAuth.Networking:NetworkableHost"] = true,
+
+	-- Gooey
+	["Gooey.VPanel"] = true,
 
 	-- MNM
 	["MNM.Models.mapModelMeshes"] = true,
@@ -174,6 +182,7 @@ local tableNameBlacklist =
 
 	-- Starfall
 	["SF.Permissions"] = true,
+	["SF.Modules"] = true,
 
 	-- CFC
 	["cfcEntityStubber.oldWeaponStats"] = true,
@@ -181,6 +190,7 @@ local tableNameBlacklist =
 	["SH_ANTICRASH.VARS"] = true,
 	["SH_ANTICRASH.SETTINGS"] = true,
 	["CustomPropInfo.Entries"] = true,
+	["CFCUlxCommands"] = true,
 
 	-- Other
 	["gb.Bitflags"] = true,
@@ -191,7 +201,7 @@ local tableNameBlacklist =
 	["ACF.Tools"] = true,
 	["ACF.MenuOptions"] = true,
 	["ULib.translatedCmds"] = true,
-	["ULib.cmds.translatedCmds"] = true,
+	["ULib.cmds"] = true,
 	["ULib.ucl.authed"] = true,
 	["ulx.cmdsByCategory"] = true,
 	["Primitive.classes"] = true,
@@ -202,6 +212,8 @@ local tableNameBlacklist =
 	["Radial.radialToolPresets"] = true,
 	["net.Stream.ReadStreamQueues"] = true,
 	["NameCacheTimings"] = true,
+	["GPanel"] = true,
+	["VFS"] = true,
 
 }
 
