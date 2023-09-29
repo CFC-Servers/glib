@@ -103,6 +103,11 @@ local tableNameBlacklist =
 	["GCompute.LanguageDetector.Extensions"] = true,
 	["GCompute.Languages.Languages.GLua.EditorHelper.RootNamespace"] = true,
 	["GCompute.TypeSystem"] = true,
+	["GCompute.Unicode:CategoryStage2"] = true,
+	["GCompute.Loader:PackFileManager"] = true,
+	["GCompute.Net:Layer2"] = true,
+	["GCompute.Colors"] = true,
+	["GCompute.AST.NumericLiteral"] = true,
 
 	-- PAC
 	["pac.ActiveParts"] = true,
@@ -133,12 +138,17 @@ local tableNameBlacklist =
 
 	-- MNM
 	["MNM.Models.mapModelMeshes"] = true,
-	["MNM.Queue.waitingForMateria"] = true,
+	["MNM.Queue.waitingForMaterial"] = true,
 	["MNM.Materials.mapMaterialData"] = true,
 
 	-- NikNaks
 	["NikNaks.CurrentMap.staticPropsByModel"] = true,
 	["NikNaks.CurrentMap._entities"] = true,
+	["NikNaks.CurrentMap._plane"] = true,
+	["NikNaks.CurrentMap._faces"] = true,
+	["NikNaks.CurrentMap._leafs"] = true,
+	["NikNaks.CurrentMap._node"] = true,
+	["NikNaks.CurrentMap._tinfo"] = true,
 	["NikNaks.CurrentMap._staticprops"] = true,
 	["NikNaks.CurrentMap._lumpheader"] = true,
 
@@ -191,6 +201,7 @@ local tableNameBlacklist =
 	["simfphys.LFS"] = true,
 	["Radial.radialToolPresets"] = true,
 	["net.Stream.ReadStreamQueues"] = true,
+	["NameCacheTimings"] = true,
 
 }
 
@@ -304,6 +315,8 @@ function self:StartIndexingThread ()
 	self.Thread = Thread
 	local GetStartTime = Thread.GetStartTime
 
+	NameCacheTimings = {}
+
 	Thread:Start (
 		function ()
 			Sleep (1000)
@@ -324,9 +337,11 @@ function self:StartIndexingThread ()
 
 				local startTime = SysTime()
 				ProcessTable (self, t, tableName, separator)
-				Debug ("GLib.Lua.NameCache : Indexed: ", tableName, "in:", SysTime() - startTime)
+				table.insert (NameCacheTimings, { name = tableName, timing = SysTime() - startTime })
+				Debug ("GLib.Lua.NameCache : Indexed: ", tableName)
 			end
 
+			table.SortByMember (NameCacheTimings, "timing")
 			Debug ("GLib.Lua.NameCache : Indexing took " .. FormatDuration (SysTime () - GetStartTime (Thread)) .. ".")
 		end
 	)
