@@ -163,6 +163,7 @@ local tableNameBlacklist =
 	["SF.Modules"] = true, -- Starfall Modules with all of their information, can get large
 	["SF.Permissions"] = true, -- Static size but still a large table of starfall permissions
 	["SF.playerInstances"] = true,
+	["SF.NetBurst.objects"] = true,
 
 	-- CFC
 	["CFCUlxCommands"] = true, -- All CFC commands and their metadata
@@ -225,11 +226,12 @@ local tableNameBlacklist =
 	["HoverboardTypes"] = true, -- Lots of hoverboard types with metadata for each of them
 	["webaudio.streams"] = true, -- All current webaudio streams, can expand indefinitely
 	["prop2mesh.recycle"] = true,
-	["prop2mesh.primitive"] = true,
 	["Primitive.classes"] = true, -- All classes registered with Primitive Props
+	["prop2mesh.primitive"] = true,
 	["FPP.entTouchReasons"] = true, -- Touchability data for every entity on the map
 	["matproxy.ActiveList"] = true, -- All active mat proxies, can expand indefinitely
 	["Radial.radialToolPresets"] = true, -- All Radial preset settings
+	["tanktracktool.render.list"] = true,
 	["AdvDupe2.JobManager.Queue"] = true, -- Serverside, all Adv2s currently in progress
 	["net.Stream.ReadStreamQueues"] = true, -- All existing Read Streams in NetStream
 	["net.Stream.WriteStreamQueues"] = true, -- All existing Write Streams in NetStream
