@@ -5,38 +5,32 @@ function self:ctor ()
 	local state = {}
 	state.NameCache = GLib.WeakKeyTable ()
 	state.QueuedTables = GLib.WeakKeyTable ()
-	
+
 	state.QueueTables = {}
 	state.QueueTableNames = {}
 	state.QueueSeparators = {}
-	
+
 	self.GetState = function (self)
 		return state
 	end
-	
+
 	self.Thread = nil
-	
+
 	self:GetState ().NameCache [_G] = "_G"
 	self:GetState ().NameCache [debug.getregistry ()] = "_R"
-	
-	self:Index (GLib, "GLib")
+
+	-- self:Index (GLib, "GLib")
 	self:Index (_G, "")
 	self:Index (debug.getregistry (), "_R")
-	
+
 	if CLIENT then
 		local _, vguiControlTable = debug.getupvalue(vgui.Register, 1)
-		self:Index (vguiControlTable, "")
+		self:Index (vguiControlTable, "[VGUI PanelFactory]")
 	end
-	
+
 	hook.Add ("GLibSystemLoaded", "GLib.Lua.NameCache",
 		function (systemName)
 			self:Index (_G [systemName], systemName)
-			
-			if CLIENT then
-				local _, vguiControlTable = debug.getupvalue(vgui.Register, 1)
-				self:GetState ().QueuedTables [vguiControlTable] = nil
-				self:Index (vguiControlTable, "")
-			end
 		end
 	)
 end
@@ -70,21 +64,127 @@ end
 local tableNameBlacklist =
 {
 	-- Base GMod
-	["chathud.lines"] = true,
-	["chathud.markup.chunks"] = true,
-	["chatsounds.ac.words"] = true,
-	["chatsounds.List"] = true,
-	["chatsounds.SortedList"] = true,
-	["chatsounds.SortedList2"] = true,
-	["chatsounds.SortedListKeys"] = true,
-	["panelWidget"] = true,
-	["guiP_colourScheme"] = true,
-	["_R._LOADED"] = true,
-	["motionsensor"] = true,
 	["stars"] = true,
+	["_R._LOADED"] = true,
+	["panelWidget"] = true,
+	["motionsensor"] = true,
+	["chathud.lines"] = true,
 	["DComboBox.Derma"] = true,
+	["chatsounds.List"] = true,
+	["properties.List"] = true,
+	["guiP_colourScheme"] = true,
+	["chatsounds.ac.words"] = true,
+	["chatsounds.SortedList"] = true,
+	["chathud.markup.chunks"] = true,
+	["chatsounds.SortedList2"] = true,
 	["duplicator.EntityClasses"] = true,
+	["duplicator.ConstraintType"] = true,
+	["chatsounds.SortedListKeys"] = true,
 
+
+	-- PAC
+	["pac.OwnedParts"] = true,
+	["pac.added_hooks"] = true,
+	["pac.ActiveParts"] = true,
+	["pac.particle_list"] = true,
+	["pac.UniqueIDParts"] = true,
+	["pac.PartTemplates"] = true,
+	["pac.VariableOrder"] = true,
+	["pac.webaudio.streams"] = true,
+	["pace.example_outfits"] = true,
+	["pac.registered_parts"] = true,
+	["pac.EventArgumentCache"] = true,
+	["pac.emut.active_mutators"] = true,
+	["pac.BoneNameReplacements"] = true,
+	["pac.animations.registered"] = true,
+	["pac.emut.registered_mutators"] = true,
+	["[VGUI PanelFactory].pace_luapad"] = true,
+
+	-- GCompute and friends
+	["VFS"] = true,
+	["GLib"] = true,
+	["GAuth"] = true,
+	["Gooey"] = true,
+	["GCompute"] = true,
+	["Gooey.BasePanel"] = true, -- Indexed elsewhere I guess
+
+	-- MNM
+	["MNM.Decals.mapDecals"] = true,
+	["MNM.Models.mapModelMeshes"] = true,
+	["MNM.Materials.mapMaterials"] = true,
+	["MNM.Queue.waitingForMaterial"] = true,
+	["MNM.Models.staticPropsByModel"] = true,
+	["MNM.Materials.mapMaterialData"] = true,
+	["MNM.Entities.entityObjectIndices"] = true,
+	["MNM.Materials.mapMaterialsLookup"] = true,
+
+	-- NikNaks
+	["NikNaks.CurrentMap._node"] = true,
+	["NikNaks.CurrentMap._plane"] = true,
+	["NikNaks.CurrentMap._faces"] = true,
+	["NikNaks.CurrentMap._leafs"] = true,
+	["NikNaks.CurrentMap._tinfo"] = true,
+	["NikNaks.CurrentMap._tdata"] = true,
+	["NikNaks.CurrentMap._bmodel"] = true,
+	["NikNaks.CurrentMap._entities"] = true,
+	["NikNaks.CurrentMap._gamelump"] = true,
+	["NikNaks.CurrentMap._gamelumps"] = true,
+	["NikNaks.CurrentMap._lumpheader"] = true,
+	["NikNaks.CurrentMap._staticprops"] = true,
+	["NikNaks.CurrentMap.staticPropsByModel"] = true,
+
+	-- Stream Radio
+	["StreamRadioLib.Settings"] = true,
+
+	-- TFA
+	["TFA.Attachments"] = true,
+	["TFA.DataVersionMapping"] = true,
+
+	-- Wire
+	["EGP.Objects"] = true, -- Every single egp object, can expand indefinitely
+	["GateActions"] = true, -- Static size, but includes all basic math operations that Wire Gates can perform
+	["E2Lib.optable"] = true, -- 
+	["WireGatesSorted"] = true,
+
+	-- CW2
+	["CustomizableWeaponry.sights"] = true, -- All registered signs and their info
+	["CustomizableWeaponry.suppressors"] = true, -- All registered suppressors and their info
+	["CustomizableWeaponry.shells.cache"] = true, -- Some shell cache? Gets pretty big
+	["CustomizableWeaponry.registeredAttachments"] = true, -- Every single registered CW2 attachment
+	["CustomizableWeaponry.registeredAttachmentsSKey"] = true, -- Some lookup table for the registeredAttachments
+
+	-- Starfall
+	["SF.Modules"] = true, -- Starfall Modules with all of their information, can get large
+	["SF.Permissions"] = true, -- Static size but still a large table of starfall permissions
+
+	-- CFC
+	["CFCUlxCommands"] = true, -- All CFC commands and their metadata
+	["SH_ANTICRASH.VARS"] = true,
+	["SH_ANTICRASH.SETTINGS"] = true,
+	["CustomPropInfo.Entries"] = true, -- All entities that have CustomPropInfo data received for them
+	["gScoreboard.FancyGroups"] = true, -- The large group stylizing table in gScoreboard
+	["cfcEntityStubber.oldWeaponStats"] = true, -- Contains multiple tables for every weapon we've ever stubbed or modified
+	["CFCNotifications._settingsTemplate"] = true, -- Not too big, but still contains info that we don't need to index
+
+	-- ACF
+	["ACF.Tools"] = true,
+	["ACF.Hitboxes"] = true, -- Long table containing all ACF hitbox data
+	["ACF.MenuOptions"] = true, -- Tons of subtables and info about settings
+	["ACF.DataCallbacks"] = true, -- All current data callbacks, scales up with ACF use
+
+	-- ULX/ULib
+	["ULib.ucl"] = true,
+	["ULib.cmds"] = true, -- ULX Commands with all of their metadata
+	["ULib.bans"] = true, -- Every single ban on the server
+	["ulx.cvars"] = true, -- All cvars managed by ULX
+	["urs.weapons"] = true, -- All weapons that have permission settings in URS
+	["ULib.sayCmds"] = true, -- All sayable commands and their metadata
+	["ULib.repcvars"] = true, -- All replicated cvars?
+	["ulx.motdSettings"] = true, -- Long table of motd settings (that I don't think we even use?)
+	["ulx.cmdsByCategory"] = true, -- Again, all commands and their metadata
+	["ULib.translatedCmds"] = true, -- All commands again
+
+	-- ULX's xgui
 	["xgui.hook"] = true,
 	["xgui.accesses"] = true,
 	["xgui.dataTypes"] = true,
@@ -92,168 +192,30 @@ local tableNameBlacklist =
 	["xgui.data.teams"] = true,
 	["xgui.data.accesses"] = true,
 	["xgui.data.motdsettings"] = true,
+	["xgui.data.URSRestrictions"] = true,
 
-	-- GLib
-	["GLib"] = true,
-	["GLib.Lua"] = true,
-	["GLib.Colors"] = true,
-	["GLib.GlobalNamespace"] = true,
-	["GLib.Lua.FunctionCache"] = true,
-	["GLib.CodeExporter"] = true,
-	["GLib.Rendering"] = true,
-	["GLib.Threading"] = true,
-	["GLib.Networking"] = true,
-	["GLib.Loader"] = true,
-	["GLib.Containers"] = true,
-	["GLib.PlayerMonitor"] = true,
-	["GLib.Net"] = true,
-	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
-
-	-- GCompute
-	["GCompute"] = true,
-	["GCompute.AST"] = true,
-	["GCompute.Lua"] = true,
-	["GCompute.Net"] = true,
-	["GCompute.GLua"] = true,
-	["GCompute.Text"] = true,
-	["GCompute.Colors"] = true,
-	["GCompute.System"] = true,
-	["GCompute.Lexing"] = true,
-	["GCompute.Unicode"] = true,
-	["GCompute.Services"] = true,
-	["GCompute.Namespace"] = true,
-	["GCompute.Execution"] = true,
-	["GCompute.Languages"] = true,
-	["GCompute.Net:Layer2"] = true,
-	["GCompute.TypeSystem"] = true,
-	["GCompute.CodeExporter"] = true,
-	["GCompute.SyntaxColoring"] = true,
-	["GCompute.GlobalNamespace"] = true,
-	["GCompute.MirrorNamespace"] = true,
-	["GCompute.ClassDefinition"] = true,
-	["GCompute.MethodDefinition"] = true,
-	["GCompute.LanguageDetector"] = true,
-	["GCompute.AST.NumericLiteral"] = true,
-	["GCompute.NamespaceDefinition"] = true,
-	["GCompute.AST.AnonymousFunction"] = true,
-	["GCompute.Unicode:CategoryStage1"] = true,
-	["GCompute.Unicode:CategoryStage2"] = true,
-	["GCompute.Loader:PackFileManager"] = true,
-	["GComputeFileChangeNotificationBar"] = true,
-	["GCompute.IDE.Instance.ViewManager"] = true,
-	["GCompute.LanguageDetector.Extensions"] = true,
-	["GCompute.IDE.Instance.DocumentManager"] = true,
-	["GCompute.Services.RemoteServiceManagerManager"] = true,
-	["GCompute.Languages.Languages.GLua.EditorHelper.RootNamespace"] = true,
-
-	-- PAC
-	["pac.ActiveParts"] = true,
-	["pac.OwnedParts"] = true,
-	["pac.UniqueIDParts"] = true,
-	["pac.webaudio.streams"] = true,
-	["pace.example_outfits"] = true,
-	["pac.PartTemplates"] = true,
-	["pac.VariableOrder"] = true,
-	["pac.added_hooks"] = true,
-	["pac.registered_parts"] = true,
-	["pac.emut.registered_mutators"] = true,
-	["pac.emut.active_mutators"] = true,
-	["pac.EventArgumentCache"] = true,
-	["pac.animations.registered"] = true,
-	["pac.BoneNameReplacements"] = true,
-
-	-- VFS
-	["VFS"] = true,
-
-	-- GAuth
-	["GAuth"] = true,
-
-	-- Gooey
-	["Gooey"] = true,
-
-	-- MNM
-	["MNM.Models.mapModelMeshes"] = true,
-	["MNM.Queue.waitingForMaterial"] = true,
-	["MNM.Materials.mapMaterialData"] = true,
-
-	-- NikNaks
-	["NikNaks.CurrentMap.staticPropsByModel"] = true,
-	["NikNaks.CurrentMap._node"] = true,
-	["NikNaks.CurrentMap._plane"] = true,
-	["NikNaks.CurrentMap._faces"] = true,
-	["NikNaks.CurrentMap._leafs"] = true,
-	["NikNaks.CurrentMap._tinfo"] = true,
-	["NikNaks.CurrentMap._gamelump"] = true,
-	["NikNaks.CurrentMap._entities"] = true,
-	["NikNaks.CurrentMap._gamelumps"] = true,
-	["NikNaks.CurrentMap._lumpheader"] = true,
-	["NikNaks.CurrentMap._staticprops"] = true,
-
-	-- Stream Radio
-	["StreamRadioLib.Settings"] = true,
-
-	-- TFA
-	["TFA.DataVersionMapping"] = true,
-	["TFA.Attachments"] = true,
-
-	-- Wire
-	["WireGatesSorted"] = true,
-	["E2Lib.optable"] = true,
-	["EGP.Objects"] = true,
-	["GateActions"] = true,
-
-	-- CW2
-	["CustomizableWeaponry.sights"] = true,
-	["CustomizableWeaponry.suppressors"] = true,
-	["CustomizableWeaponry.shells.cache"] = true,
-	["CustomizableWeaponry.registeredAttachments"] = true,
-	["CustomizableWeaponry.registeredAttachmentsSKey"] = true,
-
-	-- Starfall
-	["SF.Permissions"] = true,
-	["SF.Modules"] = true,
-
-	-- CFC
-	["cfcEntityStubber.oldWeaponStats"] = true,
-	["gScoreboard.FancyGroups"] = true,
-	["SH_ANTICRASH.VARS"] = true,
-	["SH_ANTICRASH.SETTINGS"] = true,
-	["CustomPropInfo.Entries"] = true,
-	["CFCUlxCommands"] = true,
-
-	-- ACF
-	["ACF.DataCallbacks"] = true,
-	["ACF.Hitboxes"] = true,
-	["ACF.Tools"] = true,
-	["ACF.MenuOptions"] = true,
-
-	-- ULX/ULib
-	["ULib.cmds"] = true,
-	["urs.weapons"] = true,
-	["ULib.sayCmds"] = true,
-	["ULib.repcvars"] = true,
-	["ULib.ucl.users"] = true,
-	["ULib.ucl.authed"] = true,
-	["ulx.cmdsByCategory"] = true,
-	["ulx.motdSettings"] = true,
-	["ulx.cvars"] = true,
-	["ULib.translatedCmds"] = true,
+	-- Meta
+	-- We use these locally for namecache timings
+	["NameCacheTimings"] = true,
+	["NameCacheCannotFindNames"] = true,
 
 	-- Other
-	["gb.Bitflags"] = true,
-	["HoverboardTypes"] = true,
-	["MKeyboard"] = true,
-	["Primitive.classes"] = true,
-	["webaudio.streams"] = true,
-	["prop2mesh.recycle"] = true,
-	["simfphys.LFS"] = true,
-	["Radial.radialToolPresets"] = true,
-	["net.Stream.ReadStreamQueues"] = true,
-	["NameCacheTimings"] = true,
-	["GPanel"] = true,
+	["GPanel"] = true, -- Large Gooey element
+	["MKeyboard"] = true, -- Musical Keyboard (contains lots of keys and sounds)
+	["gb.Bitflags"] = true, -- Lots of enums
+	["simfphys.LFS"] = true, -- Contains keybinds and other long tables
+	["FPP.entOwners"] = true, -- All owner info for all entities on the map
 	["MPRefreshButton"] = true,
-	["FPP.entTouchReasons"] = true,
-	["matproxy.ActiveList"] = true,
+	["HoverboardTypes"] = true, -- Lots of hoverboard types with metadata for each of them
+	["webaudio.streams"] = true, -- All current webaudio streams, can expand indefinitely
+	["prop2mesh.recycle"] = true,
+	["Primitive.classes"] = true, -- All classes registered with Primitive Props
+	["FPP.entTouchReasons"] = true, -- Touchability data for every entity on the map
+	["matproxy.ActiveList"] = true, -- All active mat proxies, can expand indefinitely
+	["Radial.radialToolPresets"] = true, -- All Radial preset settings
+	["AdvDupe2.JobManager.Queue"] = true, -- Serverside, all Adv2s currently in progress
+	["net.Stream.ReadStreamQueues"] = true, -- All existing Read Streams in NetStream
+	["net.Stream.WriteStreamQueues"] = true, -- All existing Write Streams in NetStream
 }
 
 local numericTableNameBlacklist =
@@ -270,6 +232,7 @@ function self:ProcessTable (tbl, tableName, dot)
 	local state = self:GetState ()
 	local nameCache = state.NameCache
 	local queuedTables = state.QueuedTables
+	local Sleep = GLib.Sleep
 
 	local CheckYield = GLib.CheckYield
 	local ToCompactLuaString = GLib.Lua.ToCompactLuaString
@@ -281,17 +244,21 @@ function self:ProcessTable (tbl, tableName, dot)
 	local tostring = tostring
 	local SysTime = SysTime
 
-	local loopStart
+	local loopCount = 0
 	local totalTime = 0
 
-	for k, v in pairs (tbl) do
-		if loopStart then
-			totalTime = totalTime + ( SysTime() - loopStart )
-		end
+	local sleepEvery = 100
+	local sleepMs = 2
 
+	for k, v in pairs (tbl) do
 		CheckYield ()
 
-		loopStart = SysTime()
+		if loopCount > 0 and loopCount % sleepEvery == 0 then
+			Sleep (sleepMs)
+			CheckYield ()
+		end
+
+		local loopStart = SysTime ()
 		local keyType = type (k)
 		local valueType = type (v)
 
@@ -334,10 +301,9 @@ function self:ProcessTable (tbl, tableName, dot)
 				end
 			end
 		end
-	end
 
-	if loopStart then
-		totalTime = totalTime + ( SysTime() - loopStart )
+		totalTime = SysTime() - loopStart
+		loopCount = loopCount + 1
 	end
 
 	return totalTime
@@ -379,39 +345,67 @@ function self:StartIndexingThread ()
 
 	local Thread = GLib.Threading.Thread ()
 	self.Thread = Thread
-	local GetStartTime = Thread.GetStartTime
+
+	local totalCPUTime = 0
+	local sleepMs = 5
+	local sleepEvery = 100
 
 	NameCacheTimings = {}
+	NameCacheCannotFindNames = {}
 
 	Thread:Start (
 		function ()
 			Sleep (1000)
-
 			local state = self:GetState ()
 			local QueueTables = state.QueueTables
 			local QueueTableNames = state.QueueTableNames
 			local QueueSeparators = state.QueueSeparators
-			local table_remove = table.remove
 			local table_insert = table.insert
 			local ProcessTable = self.ProcessTable
 
-			while #QueueTables > 0 do
+			local i = 1
+			local loopStart = SysTime()
+			while i <= #QueueTables do
 				CheckYield ()
 
-				local t = table_remove (QueueTables)
-				local tableName = table_remove (QueueTableNames)
-				local separator = table_remove (QueueSeparators)
+				if i > 0 and i % sleepEvery == 0 then
+					Sleep (sleepMs)
+					CheckYield ()
+				end
+
+				local t = QueueTables[i]
+				local tableName = QueueTableNames[i]
+				local separator = QueueSeparators[i]
 
 				-- Doesn't return a timing number if it was skipped (due to being blacklisted)
-				local totalTime = ProcessTable (self, t, tableName, separator)
-				if totalTime then
-					table_insert (NameCacheTimings, { name = tableName, timing = totalTime })
-					Debug ("GLib.Lua.NameCache : Indexed: ", tableName)
+				local subtaskTime = ProcessTable (self, t, tableName, separator)
+				if subtaskTime then
+					if t == _G then tableName = "_G" end
+					if tableName == "" or tableName == nil then
+						NameCacheCannotFindNames[t] = true
+					end
+
+					totalCPUTime = totalCPUTime + subtaskTime
+
+					table_insert (NameCacheTimings, { name = tableName, timing = subtaskTime })
+
+					local timingStr = "Took: " .. GLib.FormatDuration (subtaskTime)
+
+					Debug ("GLib.Lua.NameCache : Indexed: ", tableName, "", timingStr)
 				end
+
+				i = i + 1
 			end
 
+			local timeIndexing = SysTime () - loopStart
+			local cpuTime = totalCPUTime
+
+			Debug ("GLib.Lua.NameCache : Indexing took " .. FormatDuration (timeIndexing) .. ". ( CPU Time: " .. FormatDuration (cpuTime) .. ")")
+
+			table.Empty (QueueTables)
+			table.Empty (QueueTableNames)
+			table.Empty (QueueSeparators)
 			table.SortByMember (NameCacheTimings, "timing")
-			Debug ("GLib.Lua.NameCache : Indexing took " .. FormatDuration (SysTime () - GetStartTime (Thread)) .. ".")
 		end
 	)
 end
@@ -435,7 +429,7 @@ concommand.Add ("glib_namecache_timings", function (ply)
 		MsgC (label, " - [")
 		MsgC (name, item.name)
 		MsgC (label, "] = ")
-		MsgC (value, item.timing .. "")
+		MsgC (value, GLib.FormatDuration (item.timing) )
 		MsgC ("\n")
 	end
 end, nil, nil, FCVAR_UNREGISTERED )

@@ -135,6 +135,7 @@ do
 	local xpcall = xpcall
 	local tostring = tostring
 
+	local GLib_CompileString = GLib.Loader.CompileString
 	local Read = GLib.Loader.File.Read
 	local GLibError = GLib.Error
 
@@ -166,7 +167,7 @@ do
 		if not code and not compiled then
 			GLib.Error ("GLib.Loader.Include : " .. path .. ": File not found (Path was " .. pathStack [#pathStack] .. ", caller path was " .. callerDirectory .. ").\n")
 		else
-			compiled = compiled or GLib.Loader.CompileString (code, "lua/" .. fullPath, false)
+			compiled = compiled or GLib_CompileString (code, "lua/" .. fullPath, false)
 
 			if isfunction (compiled) then
 				pathStack [#pathStack + 1] = string_sub (fullPath, 1, string_find (fullPath, "/[^/]*$"))
@@ -232,11 +233,18 @@ function GLib.Loader.RunPackFile (executionTarget, packFileSystem, callback)
 		packFileSystem:MergeInto (GLib.Loader.PackFileManager:GetMergedPackFileSystem ())
 		local Include = GLib.Loader.Include
 
+		local function timeInclude (path)
+			local compileStart = SysTime ()
+			Include (path)
+			local duration = SysTime () - compileStart
+			GLib.Debug ("GLib.Loader.RunPackFile : Include " .. path .. ": Loading took " .. GLib.FormatDuration (duration) .. " - Successful:" .. tostring (success))
+		end
+
 		do
 			-- Shared autoruns
 			local files, _ = packFileSystem:Find ("autorun/*.lua")
 			for _, fileName in ipairs (files) do
-				Include ("autorun/" .. fileName)
+				timeInclude ("autorun/" .. fileName)
 			end
 		end
 
@@ -244,7 +252,7 @@ function GLib.Loader.RunPackFile (executionTarget, packFileSystem, callback)
 			-- Local autoruns
 			local files, _ = packFileSystem:Find ("autorun/" .. (SERVER and "server" or "client") .. "/*.lua")
 			for _, fileName in ipairs (files) do
-				Include ("autorun/" .. (SERVER and "server" or "client") .. "/" .. fileName)
+				timeInclude ("autorun/" .. (SERVER and "server" or "client") .. "/" .. fileName)
 			end
 		end
 
