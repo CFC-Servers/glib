@@ -49,8 +49,8 @@ function self:GetObjectName (object)
 	return self:GetState ().NameCache [object]
 end
 
-function self:GetTableName (table)
-	return self:GetState ().NameCache [table]
+function self:GetTableName (tbl)
+	return self:GetState ().NameCache [tbl]
 end
 
 function self:IsIndexingThreadRunning ()
@@ -59,8 +59,8 @@ function self:IsIndexingThreadRunning ()
 	return not self.Thread:IsTerminated ()
 end
 
-function self:Index (table, tableName, dot)
-	self:QueueIndex (table, tableName, dot)
+function self:Index (tbl, tableName, dot)
+	self:QueueIndex (tbl, tableName, dot)
 	
 	if not self:IsIndexingThreadRunning () then
 		self:StartIndexingThread ()
@@ -79,39 +79,72 @@ local tableNameBlacklist =
 	["chatsounds.SortedListKeys"] = true,
 	["panelWidget"] = true,
 	["guiP_colourScheme"] = true,
-	["_R._LOADED.derma"] = true,
-	["derma"] = true,
-	["_R._LOADED.matproxy.ActiveList"] = true,
-	["matproxy.ActiveList"] = true,
+	["_R._LOADED"] = true,
 	["motionsensor"] = true,
 	["stars"] = true,
 	["DComboBox.Derma"] = true,
+	["duplicator.EntityClasses"] = true,
 
 	["xgui.hook"] = true,
+	["xgui.accesses"] = true,
+	["xgui.dataTypes"] = true,
 	["xgui.data.users"] = true,
 	["xgui.data.teams"] = true,
 	["xgui.data.accesses"] = true,
 	["xgui.data.motdsettings"] = true,
 
 	-- GLib
-	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
+	["GLib"] = true,
+	["GLib.Lua"] = true,
+	["GLib.Colors"] = true,
+	["GLib.GlobalNamespace"] = true,
 	["GLib.Lua.FunctionCache"] = true,
+	["GLib.CodeExporter"] = true,
+	["GLib.Rendering"] = true,
+	["GLib.Threading"] = true,
+	["GLib.Networking"] = true,
+	["GLib.Loader"] = true,
+	["GLib.Containers"] = true,
+	["GLib.PlayerMonitor"] = true,
+	["GLib.Net"] = true,
+	["GLib.Loader.PackFileManager.MergedPackFileSystem.Root"] = true,
 
 	-- GCompute
-	["GCompute.GlobalNamespace"] = true,
-	["GCompute.IDE.Instance.DocumentManager"] = true,
-	["GCompute.IDE.Instance.ViewManager"] = true,
-	["GCompute.LanguageDetector.Extensions"] = true,
-	["GCompute.Languages.Languages.GLua.EditorHelper.RootNamespace"] = true,
+	["GCompute"] = true,
+	["GCompute.AST"] = true,
+	["GCompute.Lua"] = true,
+	["GCompute.Net"] = true,
+	["GCompute.GLua"] = true,
+	["GCompute.Text"] = true,
+	["GCompute.Colors"] = true,
+	["GCompute.System"] = true,
+	["GCompute.Lexing"] = true,
+	["GCompute.Unicode"] = true,
+	["GCompute.Services"] = true,
+	["GCompute.Namespace"] = true,
+	["GCompute.Execution"] = true,
+	["GCompute.Languages"] = true,
+	["GCompute.Net:Layer2"] = true,
 	["GCompute.TypeSystem"] = true,
+	["GCompute.CodeExporter"] = true,
+	["GCompute.SyntaxColoring"] = true,
+	["GCompute.GlobalNamespace"] = true,
+	["GCompute.MirrorNamespace"] = true,
+	["GCompute.ClassDefinition"] = true,
+	["GCompute.MethodDefinition"] = true,
+	["GCompute.LanguageDetector"] = true,
+	["GCompute.AST.NumericLiteral"] = true,
+	["GCompute.NamespaceDefinition"] = true,
+	["GCompute.AST.AnonymousFunction"] = true,
+	["GCompute.Unicode:CategoryStage1"] = true,
 	["GCompute.Unicode:CategoryStage2"] = true,
 	["GCompute.Loader:PackFileManager"] = true,
-	["GCompute.Net:Layer2"] = true,
-	["GCompute.Colors"] = true,
-	["GCompute.AST.NumericLiteral"] = true,
-	["GCompute.MirrorNamespace"] = true,
-	["GCompute.AST.AnonymousFunction"] = true,
 	["GComputeFileChangeNotificationBar"] = true,
+	["GCompute.IDE.Instance.ViewManager"] = true,
+	["GCompute.LanguageDetector.Extensions"] = true,
+	["GCompute.IDE.Instance.DocumentManager"] = true,
+	["GCompute.Services.RemoteServiceManagerManager"] = true,
+	["GCompute.Languages.Languages.GLua.EditorHelper.RootNamespace"] = true,
 
 	-- PAC
 	["pac.ActiveParts"] = true,
@@ -130,23 +163,13 @@ local tableNameBlacklist =
 	["pac.BoneNameReplacements"] = true,
 
 	-- VFS
-	["VFS.RealRoot"] = true,
-	["VFS.Root"] = true,
+	["VFS"] = true,
 
 	-- GAuth
-	["GAuth.Net"] = true,
-	["GAuth.UTF8"] = true,
-	["GAuth.Groups"] = true,
-	["GAuth.Loader"] = true,
-	["GAuth.Colors"] = true,
-	["GAuth.Protocol"] = true,
-	["GAuth.Lua"] = true,
-	["GAuth.Containers"] = true,
-	["GAuth.Unicode"] = true,
-	["GAuth.Networking"] = true,
+	["GAuth"] = true,
 
 	-- Gooey
-	["Gooey.VPanel"] = true,
+	["Gooey"] = true,
 
 	-- MNM
 	["MNM.Models.mapModelMeshes"] = true,
@@ -155,14 +178,16 @@ local tableNameBlacklist =
 
 	-- NikNaks
 	["NikNaks.CurrentMap.staticPropsByModel"] = true,
-	["NikNaks.CurrentMap._entities"] = true,
+	["NikNaks.CurrentMap._node"] = true,
 	["NikNaks.CurrentMap._plane"] = true,
 	["NikNaks.CurrentMap._faces"] = true,
 	["NikNaks.CurrentMap._leafs"] = true,
-	["NikNaks.CurrentMap._node"] = true,
 	["NikNaks.CurrentMap._tinfo"] = true,
-	["NikNaks.CurrentMap._staticprops"] = true,
+	["NikNaks.CurrentMap._gamelump"] = true,
+	["NikNaks.CurrentMap._entities"] = true,
+	["NikNaks.CurrentMap._gamelumps"] = true,
 	["NikNaks.CurrentMap._lumpheader"] = true,
+	["NikNaks.CurrentMap._staticprops"] = true,
 
 	-- Stream Radio
 	["StreamRadioLib.Settings"] = true,
@@ -196,30 +221,39 @@ local tableNameBlacklist =
 	["CustomPropInfo.Entries"] = true,
 	["CFCUlxCommands"] = true,
 
-	-- Other
-	["gb.Bitflags"] = true,
-	["HoverboardTypes"] = true,
-	["MKeyboard"] = true,
+	-- ACF
 	["ACF.DataCallbacks"] = true,
 	["ACF.Hitboxes"] = true,
 	["ACF.Tools"] = true,
 	["ACF.MenuOptions"] = true,
-	["ULib.translatedCmds"] = true,
+
+	-- ULX/ULib
 	["ULib.cmds"] = true,
+	["urs.weapons"] = true,
+	["ULib.sayCmds"] = true,
+	["ULib.repcvars"] = true,
+	["ULib.ucl.users"] = true,
 	["ULib.ucl.authed"] = true,
 	["ulx.cmdsByCategory"] = true,
+	["ulx.motdSettings"] = true,
+	["ulx.cvars"] = true,
+	["ULib.translatedCmds"] = true,
+
+	-- Other
+	["gb.Bitflags"] = true,
+	["HoverboardTypes"] = true,
+	["MKeyboard"] = true,
 	["Primitive.classes"] = true,
 	["webaudio.streams"] = true,
-	["urs.weapons"] = true,
 	["prop2mesh.recycle"] = true,
 	["simfphys.LFS"] = true,
 	["Radial.radialToolPresets"] = true,
 	["net.Stream.ReadStreamQueues"] = true,
 	["NameCacheTimings"] = true,
 	["GPanel"] = true,
-	["VFS"] = true,
 	["MPRefreshButton"] = true,
 	["FPP.entTouchReasons"] = true,
+	["matproxy.ActiveList"] = true,
 }
 
 local numericTableNameBlacklist =
@@ -229,10 +263,10 @@ local numericTableNameBlacklist =
 
 local debug_getmetatable = debug.getmetatable
 
-function self:ProcessTable (table, tableName, dot)
+function self:ProcessTable (tbl, tableName, dot)
 	if tableNameBlacklist [tableName] then return end
 	local numericBlacklisted = numericTableNameBlacklist [tableName]
-	
+
 	local state = self:GetState ()
 	local nameCache = state.NameCache
 	local queuedTables = state.QueuedTables
@@ -245,21 +279,27 @@ function self:ProcessTable (table, tableName, dot)
 	local QueueIndex = self.QueueIndex
 	local type = type
 	local tostring = tostring
+	local SysTime = SysTime
 
-	for k, v in pairs (table) do
+	local loopStart
+	local totalTime = 0
+
+	for k, v in pairs (tbl) do
+		if loopStart then
+			totalTime = totalTime + ( SysTime() - loopStart )
+		end
+
 		CheckYield ()
-		
+
+		loopStart = SysTime()
 		local keyType = type (k)
 		local valueType = type (v)
-		
-		if not numericBlacklisted or
-		   keyType ~= "number" then
+
+		if not numericBlacklisted or keyType ~= "number" then
 			local memberName = nil
-			
-			if valueType == "function" or
-			   valueType == "table" then
-				if keyType ~= "string" or
-				   not IsValidVariableName (k) then
+
+			if valueType == "function" or valueType == "table" then
+				if keyType ~= "string" or not IsValidVariableName (k) then
 					if keyType == "table" then
 						-- ¯\_(ツ)_/¯
 					end
@@ -267,7 +307,7 @@ function self:ProcessTable (table, tableName, dot)
 				else
 					memberName = tableName ~= "" and (tableName .. dot .. tostring (k)) or tostring (k)
 				end
-				
+
 				nameCache [v] = nameCache [v] or memberName
 			end
 
@@ -275,7 +315,7 @@ function self:ProcessTable (table, tableName, dot)
 			if valueType == "table" then
 				if not queuedTables [v] then
 					QueueIndex (self, v, memberName)
-					
+
 					-- Check if this is a GLib class
 					if IsStaticTable (v) then
 						local metatable = GetMetaTable (v)
@@ -287,8 +327,7 @@ function self:ProcessTable (table, tableName, dot)
 						-- Do the __index metatable if it exists
 						local metatable = debug_getmetatable (v)
 						local __index = metatable and metatable.__index or nil
-						if __index and
-						   not queuedTables [__index] then
+						if __index and not queuedTables [__index] then
 							QueueIndex (self, __index, memberName, ":")
 						end
 					end
@@ -296,23 +335,33 @@ function self:ProcessTable (table, tableName, dot)
 			end
 		end
 	end
+
+	if loopStart then
+		totalTime = totalTime + ( SysTime() - loopStart )
+	end
+
+	return totalTime
 end
 
-function self:QueueIndex (table, tableName, dot)
-	if type (table) ~= "table" then
-		return
+do
+	local type = type
+	local table_insert = table.insert
+	function self:QueueIndex (tbl, tableName, dot)
+		if type (tbl) ~= "table" then
+			return
+		end
+
+		dot = dot or "."
+
+		local state = self:GetState ()
+
+		if state.QueuedTables [tbl] then return end
+
+		state.QueuedTables [tbl] = true
+		table_insert (state.QueueTables, tbl)
+		table_insert (state.QueueTableNames, tableName)
+		table_insert (state.QueueSeparators, dot)
 	end
-	
-	dot = dot or "."
-	
-	local state = self:GetState ()
-	
-	if state.QueuedTables [table] then return end
-	
-	state.QueuedTables [table] = true
-	state.QueueTables [#state.QueueTables + 1] = table
-	state.QueueTableNames [#state.QueueTableNames + 1] = tableName
-	state.QueueSeparators [#state.QueueSeparators + 1] = dot
 end
 
 function self:StartIndexingThread ()
@@ -343,6 +392,7 @@ function self:StartIndexingThread ()
 			local QueueTableNames = state.QueueTableNames
 			local QueueSeparators = state.QueueSeparators
 			local table_remove = table.remove
+			local table_insert = table.insert
 			local ProcessTable = self.ProcessTable
 
 			while #QueueTables > 0 do
@@ -352,10 +402,12 @@ function self:StartIndexingThread ()
 				local tableName = table_remove (QueueTableNames)
 				local separator = table_remove (QueueSeparators)
 
-				local startTime = SysTime()
-				ProcessTable (self, t, tableName, separator)
-				table.insert (NameCacheTimings, { name = tableName, timing = SysTime() - startTime })
-				Debug ("GLib.Lua.NameCache : Indexed: ", tableName)
+				-- Doesn't return a timing number if it was skipped (due to being blacklisted)
+				local totalTime = ProcessTable (self, t, tableName, separator)
+				if totalTime then
+					table_insert (NameCacheTimings, { name = tableName, timing = totalTime })
+					Debug ("GLib.Lua.NameCache : Indexed: ", tableName)
+				end
 			end
 
 			table.SortByMember (NameCacheTimings, "timing")
@@ -363,5 +415,29 @@ function self:StartIndexingThread ()
 		end
 	)
 end
+
+concommand.Add ("glib_namecache_timings", function (ply)
+	if SERVER and ply:IsValid() then return end
+
+	local header = Color( 15, 100, 200 )
+	local label = Color( 200, 200, 200 )
+	local name = Color( 25, 200, 25 )
+	local value = Color( 200, 100, 25 )
+
+	local MsgC = _G.MsgC
+	MsgC (header, "[GLib] ")
+	MsgC (label, "NameCache Timings:")
+	MsgC ("\n")
+
+	for i = 1, 20 do
+		local item = NameCacheTimings[i]
+
+		MsgC (label, " - [")
+		MsgC (name, item.name)
+		MsgC (label, "] = ")
+		MsgC (value, item.timing .. "")
+		MsgC ("\n")
+	end
+end, nil, nil, FCVAR_UNREGISTERED )
 
 GLib.Lua.NameCache = GLib.Lua.NameCache ()
