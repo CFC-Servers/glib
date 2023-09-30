@@ -396,7 +396,7 @@ elseif CLIENT then
 				if i > #packFileEntries then
 					-- Finished requesting pack files, run them all.
 					i = 1
-					deserializeNextPackFile ()
+					GLib.CallDelayed (deserializeNextPackFile)
 					return
 				end
 
@@ -409,7 +409,7 @@ elseif CLIENT then
 						packFileEntries [i].Data = data
 
 						i = i + 1
-						requestNextResource ()
+						GLib.CallDelayed (requestNextResource)
 					end
 				)
 			end
@@ -418,7 +418,7 @@ elseif CLIENT then
 				if i > #packFileEntries then
 					-- Finished deserializing pack files, run them all.
 					i = 1
-					runNextPackFile ()
+					GLib.CallDelayed (runNextPackFile)
 					return
 				end
 
@@ -432,12 +432,12 @@ elseif CLIENT then
 							packFileEntry.DeserializationDuration = SysTime () - startTime
 
 							i = i + 1
-							deserializeNextPackFile ()
+							GLib.CallDelayed (deserializeNextPackFile)
 						end
 					)
 				else
 					i = i + 1
-					deserializeNextPackFile ()
+					GLib.CallDelayed (deserializeNextPackFile)
 				end
 			end
 
@@ -463,7 +463,7 @@ elseif CLIENT then
 				)
 			end
 
-			requestNextResource ()
+			GLib.CallDelayed (requestNextResource)
 		end
 	)
 

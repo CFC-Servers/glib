@@ -406,9 +406,9 @@ function self:StartIndexingThread ()
 
 					table_insert (NameCacheTimings, { name = tableName, timing = subtaskTime })
 
-					local timingStr = "Took: " .. GLib.FormatDuration (subtaskTime)
+					-- local timingStr = "Took: " .. GLib.FormatDuration (subtaskTime)
 
-					Debug ("GLib.Lua.NameCache : Indexed: ", tableName, "", timingStr)
+					-- Debug ("GLib.Lua.NameCache : Indexed: ", tableName, "", timingStr)
 				end
 
 				i = i + 1
