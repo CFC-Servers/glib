@@ -155,6 +155,7 @@ local tableNameBlacklist =
 	["CustomizableWeaponry.sights"] = true, -- All registered signs and their info
 	["CustomizableWeaponry.suppressors"] = true, -- All registered suppressors and their info
 	["CustomizableWeaponry.shells.cache"] = true, -- Some shell cache? Gets pretty big
+	["CustomizableWeaponry.colorableParts"] = true,
 	["CustomizableWeaponry.registeredAttachments"] = true, -- Every single registered CW2 attachment
 	["CustomizableWeaponry.registeredAttachmentsSKey"] = true, -- Some lookup table for the registeredAttachments
 
