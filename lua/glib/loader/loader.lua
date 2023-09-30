@@ -237,7 +237,7 @@ function GLib.Loader.RunPackFile (executionTarget, packFileSystem, callback)
 			local compileStart = SysTime ()
 			Include (path)
 			local duration = SysTime () - compileStart
-			GLib.Debug ("GLib.Loader.RunPackFile : Include " .. path .. ": Loading took " .. GLib.FormatDuration (duration) .. " - Successful:" .. tostring (success))
+			GLib.Debug ("GLib.Loader.RunPackFile : Include " .. path .. ": Loading took " .. GLib.FormatDuration (duration))
 		end
 
 		do

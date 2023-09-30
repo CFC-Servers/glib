@@ -329,6 +329,19 @@ include ("databases/mysqloodatabase.lua")
 include ("parsing/stringparser.lua")
 include ("parsing/durationparser.lua")
 
+function GLib.LoadTimer (name)
+	local startTime = SysTime ()
+
+	return {
+		step = function (stepName)
+			local duration = GLib.FormatDuration (SysTime () - startTime)
+			startTime = SysTime ()
+
+			GLib.Debug ("GLib.LoadTimer", name .. " : " .. "Completed ", stepName, "in " .. duration)
+		end
+	}
+end
+
 GLib.CallDelayed (
 	function ()
 		hook.Call ("GLibSystemLoaded", GAMEMODE or GM, "GLibStage2")

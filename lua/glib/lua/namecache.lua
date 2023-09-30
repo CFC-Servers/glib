@@ -145,6 +145,8 @@ local tableNameBlacklist =
 	["GateActions"] = true, -- Static size, but includes all basic math operations that Wire Gates can perform
 	["E2Lib.optable"] = true, -- 
 	["WireGatesSorted"] = true,
+	["Wire_Keyboard_Remap"] = true,
+	["WireLib.PlayerTables"] = true,
 
 	-- CW2
 	["CustomizableWeaponry.sights"] = true, -- All registered signs and their info
