@@ -86,6 +86,7 @@ local tableNameBlacklist =
 	["pac.OwnedParts"] = true,
 	["pac.added_hooks"] = true,
 	["pac.ActiveParts"] = true,
+	["pac.urlobj.Cache"] = true,
 	["pac.particle_list"] = true,
 	["pac.UniqueIDParts"] = true,
 	["pac.PartTemplates"] = true,
@@ -105,6 +106,7 @@ local tableNameBlacklist =
 	["GLib"] = true,
 	["GAuth"] = true,
 	["Gooey"] = true,
+	["GCodec"] = true,
 	["GCompute"] = true,
 	["Gooey.BasePanel"] = true, -- Indexed elsewhere I guess
 
@@ -147,6 +149,7 @@ local tableNameBlacklist =
 	["WireGatesSorted"] = true,
 	["Wire_Keyboard_Remap"] = true,
 	["WireLib.PlayerTables"] = true,
+	["wire_expression2_funcs"] = true,
 
 	-- CW2
 	["CustomizableWeaponry.sights"] = true, -- All registered signs and their info
@@ -158,12 +161,14 @@ local tableNameBlacklist =
 	-- Starfall
 	["SF.Modules"] = true, -- Starfall Modules with all of their information, can get large
 	["SF.Permissions"] = true, -- Static size but still a large table of starfall permissions
+	["SF.playerInstances"] = true,
 
 	-- CFC
 	["CFCUlxCommands"] = true, -- All CFC commands and their metadata
 	["SH_ANTICRASH.VARS"] = true,
 	["SH_ANTICRASH.SETTINGS"] = true,
 	["CustomPropInfo.Entries"] = true, -- All entities that have CustomPropInfo data received for them
+	["CustomPropInfo.CPPIBuddies"] = true,
 	["gScoreboard.FancyGroups"] = true, -- The large group stylizing table in gScoreboard
 	["cfcEntityStubber.oldWeaponStats"] = true, -- Contains multiple tables for every weapon we've ever stubbed or modified
 	["CFCNotifications._settingsTemplate"] = true, -- Not too big, but still contains info that we don't need to index
@@ -171,8 +176,16 @@ local tableNameBlacklist =
 	-- ACF
 	["ACF.Tools"] = true,
 	["ACF.Hitboxes"] = true, -- Long table containing all ACF hitbox data
+	["ACF.FuelTanks"] = true,
+	["ACF.AmmoCrates"] = true,
 	["ACF.MenuOptions"] = true, -- Tons of subtables and info about settings
+	["ACF.ActiveRadar"] = true,
+	["ACF.Repositories"] = true,
+	["ACF.ActiveLasers"] = true,
+	["ACF.LaserSources"] = true,
 	["ACF.DataCallbacks"] = true, -- All current data callbacks, scales up with ACF use
+	["ACF.ActiveMissiles"] = true,
+	["ACF.ModelData.Models"] = true,
 
 	-- ULX/ULib
 	["ULib.ucl"] = true,
@@ -211,6 +224,7 @@ local tableNameBlacklist =
 	["HoverboardTypes"] = true, -- Lots of hoverboard types with metadata for each of them
 	["webaudio.streams"] = true, -- All current webaudio streams, can expand indefinitely
 	["prop2mesh.recycle"] = true,
+	["prop2mesh.primitive"] = true,
 	["Primitive.classes"] = true, -- All classes registered with Primitive Props
 	["FPP.entTouchReasons"] = true, -- Touchability data for every entity on the map
 	["matproxy.ActiveList"] = true, -- All active mat proxies, can expand indefinitely
