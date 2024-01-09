@@ -17,11 +17,9 @@ function self:ctor ()
 	self.Thread = nil
 
 	self:GetState ().NameCache [_G] = "_G"
-	self:GetState ().NameCache [debug.getregistry ()] = "_R"
 
 	-- self:Index (GLib, "GLib")
 	self:Index (_G, "")
-	self:Index (debug.getregistry (), "_R")
 
 	if CLIENT then
 		local _, vguiControlTable = debug.getupvalue(vgui.Register, 1)
