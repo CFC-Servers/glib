@@ -1,4 +1,4 @@
-local self = debug.getregistry ().VMatrix
+local self = FindMetaTable ("VMatrix")
 GLib.VMatrix = {}
 
 local v = Vector ()
@@ -69,7 +69,7 @@ function self:ToString ()
 	return self:ToMatrix ():ToString ()
 end
 
-local self = debug.getregistry ().Vector
+local self = FindMetaTable ("Vector")
 
 function self:ToColumnVector (out)
 	out = out or GLib.ColumnVector (3)

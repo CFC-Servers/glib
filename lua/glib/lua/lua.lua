@@ -68,7 +68,7 @@ end
 function GLib.Lua.GetObjectName (object)
 	if not GLib.Lua.NameCache               then return nil end
 	if not GLib.Lua.NameCache.GetObjectName then return nil end
-	
+
 	return GLib.Lua.NameCache:GetObjectName (object)
 end
 
@@ -77,12 +77,8 @@ function GLib.Lua.GetTable (tableName)
 	
 	local t = _G
 	for i = 1, #parts do
-		if i == 1 and parts [i] == "_R" then
-			t = debug.getregistry ()
-		else
-			t = t [parts [i]]
-		end
-		
+		t = t [parts [i]]
+
 		if not t then break end
 	end
 	
@@ -90,7 +86,7 @@ function GLib.Lua.GetTable (tableName)
 		GLib.Error ("GLib.Lua.GetTable : Table " .. tableName .. " does not exist.")
 		return nil
 	end
-	
+
 	return t
 end
 
@@ -107,12 +103,8 @@ function GLib.Lua.GetTableValue (valueName)
 	
 	local t = _G
 	for i = 1, #parts do
-		if i == 1 and parts [i] == "_R" then
-			t = debug.getregistry ()
-		else
-			t = t [parts [i]]
-		end
-		
+		t = t [parts [i]]
+
 		if not t then break end
 	end
 	

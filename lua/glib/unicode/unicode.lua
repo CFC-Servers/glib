@@ -325,7 +325,7 @@ local function ParseUnicodeData (unicodeData)
 	local dataLines = GLib.Unicode.DataLines
 	local i = 1
 	local lastCodePoint = 0
-	timer.Create ("GLib.Unicode.ParseData", 0.001, 0,
+	timer.Create ("GLib.Unicode.ParseData", 0.01, 0,
 		function ()
 			local startTime = SysTime ()
 			while SysTime () - startTime < 0.005 do

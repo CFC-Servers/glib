@@ -1,12 +1,12 @@
 GLib.Loader = {}
 GLib.Loader.File = {}
 
-local CompileString = CompileString
 
 for k, v in pairs (file) do
 	GLib.Loader.File [k] = v
 end
 
+CreateConVar ("glib_debug_prints", 0, FCVAR_ARCHIVE, "GLib Debug Prints", 0, 1)
 if CLIENT then
 	CreateClientConVar ("glib_use_local_files", 0, true, false)
 	CreateClientConVar ("glib_autoload_enabled", 0, true, false)
@@ -19,16 +19,22 @@ function GLib.Loader.CompileFile (path)
 	return CompileFile (path)
 end
 
-function GLib.Loader.CompileString (code, path, errorMode)
-	if string.find (code, "^\xef\xbb\xbf") then
-		code = string.sub (code, 4)
-	end
+do
+	local string_find = string.find
+	local string_sub = string.sub
+	local isfunction = isfunction
+	local CompileString = CompileString
+	function GLib.Loader.CompileString (code, path, errorMode)
+		if string_find (code, "^\xef\xbb\xbf") then
+			code = string_sub (code, 4)
+		end
 
-	local compiled = CompileString (code, path, errorMode)
-	if type (compiled) == "function" then
-		setfenv (compiled, GLib.Loader.Environment)
+		local compiled = CompileString (code, path, errorMode)
+		if isfunction (compiled) then
+			setfenv (compiled, GLib.Loader.Environment)
+		end
+		return compiled
 	end
-	return compiled
 end
 
 local localLuaPathId = CLIENT and "LCL" or "LSV"
@@ -120,42 +126,61 @@ GLib.Loader.Find   = GLib.Loader.File.Find
 GLib.Loader.Read   = GLib.Loader.File.Read
 
 local pathStack = { "" }
-function GLib.Loader.Include (path)
-	local callerPath = debug.getinfo (2).short_src
-	if callerPath:sub (1, 1) == "@" then callerPath = callerPath:sub (2) end
-	callerPath = callerPath:match ("lua/(.*)") or callerPath
-	local callerDirectory = ""
-	if callerPath:find ("/") then
-		callerDirectory = callerPath:sub (1, callerPath:find ("/[^/]*$"))
-	else
-		callerDirectory = ""
-	end
+do
+	local debug_getinfo = debug.getinfo
+	local string_sub = string.sub
+	local string_match = string.match
+	local string_find = string.find
+	local isfunction = isfunction
+	local xpcall = xpcall
+	local tostring = tostring
 
-	local fullPath = pathStack [#pathStack] .. path
-	local code, compiled = GLib.Loader.File.Read (pathStack [#pathStack] .. path, "LUA")
-	if not code and not compiled then
-		fullPath = callerDirectory .. path
-		code, compiled = GLib.Loader.File.Read (callerDirectory .. path, "LUA")
-	end
-	if not code and not compiled then
-		fullPath = path
-		code, compiled = GLib.Loader.File.Read (path, "LUA")
-	end
-	if not code and not compiled then
-		GLib.Error ("GLib.Loader.Include : " .. path .. ": File not found (Path was " .. pathStack [#pathStack] .. ", caller path was " .. callerDirectory .. ").\n")
-	else
-		compiled = compiled or GLib.Loader.CompileString (code, "lua/" .. fullPath, false)
-		if type (compiled) == "function" then
-			pathStack [#pathStack + 1] = fullPath:sub (1, fullPath:find ("/[^/]*$"))
-			return (
-				function (success, ...)
-					pathStack [#pathStack] = nil
-					if not success then return end
-					return ...
-				end
-			) (xpcall (compiled, GLib.Error))
+	local GLib_CompileString = GLib.Loader.CompileString
+	local Read = GLib.Loader.File.Read
+	local GLibError = GLib.Error
+
+	function GLib.Loader.Include (path)
+		local callerPath = debug_getinfo (2).short_src
+		if string_sub (callerPath, 1, 1) == "@" then callerPath = string_sub (callerPath, 2) end
+
+		callerPath = string_match (callerPath, "lua/(.*)") or callerPath
+
+		local callerDirectory = ""
+		if string_find (callerPath, "/") then
+			callerDirectory = string_sub (callerPath, 1, string_find (callerPath, "/[^/]*$"))
 		else
-			ErrorNoHalt ("GLib.Loader.Include : " .. fullPath .. ": File failed to compile:\n\t" .. tostring (compiled) .. "\n")
+			callerDirectory = ""
+		end
+
+		local fullPath = pathStack [#pathStack] .. path
+		local code, compiled = Read (pathStack [#pathStack] .. path, "LUA")
+		if not code and not compiled then
+			fullPath = callerDirectory .. path
+			code, compiled = Read (callerDirectory .. path, "LUA")
+		end
+
+		if not code and not compiled then
+			fullPath = path
+			code, compiled = Read (path, "LUA")
+		end
+
+		if not code and not compiled then
+			GLib.Error ("GLib.Loader.Include : " .. path .. ": File not found (Path was " .. pathStack [#pathStack] .. ", caller path was " .. callerDirectory .. ").\n")
+		else
+			compiled = compiled or GLib_CompileString (code, "lua/" .. fullPath, false)
+
+			if isfunction (compiled) then
+				pathStack [#pathStack + 1] = string_sub (fullPath, 1, string_find (fullPath, "/[^/]*$"))
+				return (
+					function (success, ...)
+						pathStack [#pathStack] = nil
+						if not success then return end
+						return ...
+					end
+				) (xpcall (compiled, GLibError))
+			else
+				ErrorNoHalt ("GLib.Loader.Include : " .. fullPath .. ": File failed to compile:\n\t" .. tostring (compiled) .. "\n")
+			end
 		end
 	end
 end
@@ -165,7 +190,8 @@ GLib.Loader.Environment = setmetatable (
 		AddCSLuaFile = function () end,
 		file         = GLib.Loader.File,
 		include      = GLib.Loader.Include,
-		CompileFile  = GLib.Loader.CompileFile
+		CompileFile  = GLib.Loader.CompileFile,
+		gfile        = _G.file,
 	},
 	{
 		__index = getfenv (),
@@ -184,106 +210,50 @@ function GLib.Loader.RunPackFile (executionTarget, packFileSystem, callback)
 	if CLIENT and executionTarget == "cl" then shouldRun = true end
 
 	if shouldRun then
-		for i = 1, packFileSystem:GetSystemTableCount () do
-			GLib.Loader.PackFileManager:GetMergedPackFileSystem ():AddSystemTable (packFileSystem:GetSystemTableName (i))
-		end
+		do
+			for i = 1, packFileSystem:GetSystemTableCount () do
+				GLib.Loader.PackFileManager:GetMergedPackFileSystem ():AddSystemTable (packFileSystem:GetSystemTableName (i))
+			end
 
-		if GLib.Loader.ShouldPackOverrideLocalFiles () then
-			-- Unload systems in reverse load order
-			for i = packFileSystem:GetSystemTableCount (), 1, -1 do
-				local systemTableName = packFileSystem:GetSystemTableName (i)
-				if systemTableName == "GLib" then
-					_G [systemTableName].Stage2 = nil
-				elseif _G [systemTableName] then
-					print ("GLib.Loader : Unloading " .. systemTableName .. " to prepare for replacement...")
-					GLib.UnloadSystem (systemTableName)
+			if GLib.Loader.ShouldPackOverrideLocalFiles () then
+				-- Unload systems in reverse load order
+				for i = packFileSystem:GetSystemTableCount (), 1, -1 do
+					local systemTableName = packFileSystem:GetSystemTableName (i)
+					if systemTableName == "GLib" then
+						_G [systemTableName].Stage2 = nil
+					elseif _G [systemTableName] then
+						print ("GLib.Loader : Unloading " .. systemTableName .. " to prepare for replacement...")
+						GLib.UnloadSystem (systemTableName)
+					end
 				end
 			end
+
 		end
 
 		packFileSystem:MergeInto (GLib.Loader.PackFileManager:GetMergedPackFileSystem ())
+		local Include = GLib.Loader.Include
 
-		-- Shared autoruns
-		local files, _ = packFileSystem:Find ("autorun/*.lua")
-		for _, fileName in ipairs (files) do
-			GLib.Loader.Include ("autorun/" .. fileName)
+		local function timeInclude (path)
+			local compileStart = SysTime ()
+			Include (path)
+			local duration = SysTime () - compileStart
+			GLib.Debug ("GLib.Loader.RunPackFile : Include " .. path .. ": Loading took " .. GLib.FormatDuration (duration))
 		end
 
-		-- Local autoruns
-		local files, _ = packFileSystem:Find ("autorun/" .. (SERVER and "server" or "client") .. "/*.lua")
-		for _, fileName in ipairs (files) do
-			GLib.Loader.Include ("autorun/" .. (SERVER and "server" or "client") .. "/" .. fileName)
-		end
-
-		local prefix = SERVER and "" or "cl_"
-
-		-- Effects
-		if CLIENT then
-			local _, folders = packFileSystem:Find ("effects/*")
-			for _, className in ipairs (folders) do
-				local _EFFECT = EFFECT
-				EFFECT = {}
-				GLib.Loader.Include ("effects/" .. className .. "/init.lua")
-				effects.Register (EFFECT, className)
-				EFFECT = _EFFECT
+		do
+			-- Shared autoruns
+			local files, _ = packFileSystem:Find ("autorun/*.lua")
+			for _, fileName in ipairs (files) do
+				timeInclude ("autorun/" .. fileName)
 			end
 		end
 
-		-- Entities
-		local _, folders = packFileSystem:Find ("entities/*")
-		for _, className in ipairs (folders) do
-			local _ENT = ENT
-			ENT = {}
-			ENT.Type = "anim"
-			ENT.Base = "base_anim"
-			ENT.ClassName = className
-
-			-- Run file
-			if packFileSystem:Exists ("entities/" .. className .. "/" .. prefix .. "init.lua") then
-				GLib.Loader.Include ("entities/" .. className .. "/" .. prefix .. "init.lua")
-			elseif packFileSystem:Exists ("entities/" .. className .. "/shared.lua") then
-				GLib.Loader.Include ("entities/" .. className .. "/shared.lua")
+		do
+			-- Local autoruns
+			local files, _ = packFileSystem:Find ("autorun/" .. (SERVER and "server" or "client") .. "/*.lua")
+			for _, fileName in ipairs (files) do
+				timeInclude ("autorun/" .. (SERVER and "server" or "client") .. "/" .. fileName)
 			end
-
-			scripted_ents.Register (ENT, ENT.ClassName, true)
-
-			-- Update existing entities
-			for _, ent in ipairs (ents.FindByClass (ENT.ClassName)) do
-				table.Merge (ent:GetTable (), ENT)
-			end
-
-			ENT = _ENT
-		end
-
-		-- Weapons
-		local _, folders = packFileSystem:Find ("weapons/*")
-		for _, className in ipairs (folders) do
-			local success = false
-			local _SWEP = SWEP
-			SWEP = {}
-			SWEP.Primary   = {}
-			SWEP.Secondary = {}
-			SWEP.ClassName = className
-
-			-- Run file
-			if packFileSystem:Exists ("weapons/" .. className .. "/" .. prefix .. "init.lua") then
-				success = true
-				GLib.Loader.Include ("weapons/" .. className .. "/" .. prefix .. "init.lua")
-			elseif packFileSystem:Exists ("weapons/" .. className .. "/shared.lua") then
-				success = true
-				GLib.Loader.Include ("weapons/" .. className .. "/shared.lua")
-			end
-
-			if success then
-				weapons.Register (SWEP, SWEP.ClassName, true)
-
-				-- Update existing entities
-				for _, ent in ipairs (ents.FindByClass (SWEP.ClassName)) do
-					table.Merge (ent:GetTable (), SWEP)
-				end
-			end
-
-			SWEP = _SWEP
 		end
 
 		-- Events
@@ -326,15 +296,6 @@ function GLib.Loader.RunSerializedPackFile (executionTarget, serializedPackFile,
 	else
 		callback (false)
 	end
-
-	if SERVER then
-		if executionTarget == "sh" or executionTarget == "cl" then
-			if not shouldRun then
-				print ("GLib.Loader : Forwarding pack file \"" .. packFileName .. "\" on to clients.")
-			end
-			GLib.Loader.StreamPack (GLib.GetEveryoneId (), executionTarget, compressed and serializedPackFile or util.Compress (serializedPackFile), packFileName)
-		end
-	end
 end
 
 function GLib.Loader.ShouldPackOverrideLocalFiles ()
@@ -355,7 +316,7 @@ end
 local function IsUserIdSuperAdmin (userId)
 	if userId == "Server" then return true end
 
-	for _, v in pairs (player.GetAll ()) do
+	for _, v in ipairs (player.GetAll ()) do
 		if GLib.GetPlayerId (v) == userId then
 			return v:IsSuperAdmin ()
 		end
@@ -385,6 +346,7 @@ GLib.Transfers.RegisterInitialPacketHandler ("GLib.LuaPack",
 			local displayName = inBuffer:String ()
 
 			print ("GLib.Loader : Rejecting lua pack " .. displayName .. " from " .. userId .. ".")
+			ErrorNoHaltWithStack ("GLib.Loader : Rejecting lua pack " .. displayName .. " from " .. userId .. ".")
 			return false
 		end
 	end
@@ -434,7 +396,7 @@ elseif CLIENT then
 				if i > #packFileEntries then
 					-- Finished requesting pack files, run them all.
 					i = 1
-					deserializeNextPackFile ()
+					GLib.CallDelayed (deserializeNextPackFile)
 					return
 				end
 
@@ -447,7 +409,7 @@ elseif CLIENT then
 						packFileEntries [i].Data = data
 
 						i = i + 1
-						requestNextResource ()
+						GLib.CallDelayed (requestNextResource)
 					end
 				)
 			end
@@ -456,7 +418,7 @@ elseif CLIENT then
 				if i > #packFileEntries then
 					-- Finished deserializing pack files, run them all.
 					i = 1
-					runNextPackFile ()
+					GLib.CallDelayed (runNextPackFile)
 					return
 				end
 
@@ -470,12 +432,12 @@ elseif CLIENT then
 							packFileEntry.DeserializationDuration = SysTime () - startTime
 
 							i = i + 1
-							deserializeNextPackFile ()
+							GLib.CallDelayed (deserializeNextPackFile)
 						end
 					)
 				else
 					i = i + 1
-					deserializeNextPackFile ()
+					GLib.CallDelayed (deserializeNextPackFile)
 				end
 			end
 
@@ -495,12 +457,12 @@ elseif CLIENT then
 					function ()
 						MsgN ("GLib.Loader : Ran pack file " .. packFileSystem:GetName () .. " in " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
 						i = i + 1
-						GLib.CallDelayed (runNextPackFile, 1.75)
+						GLib.CallDelayed (runNextPackFile)
 					end
 				)
 			end
 
-			requestNextResource ()
+			GLib.CallDelayed (requestNextResource)
 		end
 	)
 
