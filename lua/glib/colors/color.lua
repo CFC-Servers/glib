@@ -10,8 +10,8 @@ local string_sub        = string.sub
 local Color             = Color
 local Vector            = Vector
 
-local Vector___index    = debug.getregistry ().Vector.__index
-local Vector___newindex = debug.getregistry ().Vector.__newindex
+local Vector___index    = FindMetaTable ("Vector").__index
+local Vector___newindex = FindMetaTable ("Vector").__newindex
 
 local colorsByName = {}
 local colorNames   = {}

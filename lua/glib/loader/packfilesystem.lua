@@ -187,35 +187,34 @@ function self:Deserialize (data, compressed, callback)
 	
 	local unpackSome
 	function unpackSome ()
-		local startTime = SysTime ()
-		while SysTime () - startTime < 0.005 do
-			local path = inBuffer:String ()
-			if path == "" then
-				-- Finished
-				
-				if originalRevision == 0 then
-					-- We started off blank, it's
-					-- okay to use the data as the
-					-- serialized pack file.
-					self.PackFile = data
-					self.CompressedPackFile = compressedData
-					self.PackFileRevision = self.Revision
-				end
-				
-				callback (decompressedSize)
-				return
+		local path = inBuffer:String ()
+		if path == "" then
+			-- Finished
+			
+			if originalRevision == 0 then
+				-- We started off blank, it's
+				-- okay to use the data as the
+				-- serialized pack file.
+				self.PackFile = data
+				self.CompressedPackFile = compressedData
+				self.PackFileRevision = self.Revision
 			end
-			local data = inBuffer:LongString ()
-			path = self:NormalizePath (path)
-			self:Write (path, data)
-			local compiled = GLib.Loader.CompileString (data, path, false)
-			if type (compiled) == "function" then
-				self.CachedFunctions [path] = compiled
-			end
+			
+			callback (decompressedSize)
+			return
 		end
-		GLib.CallDelayed (unpackSome)
+		local data = inBuffer:LongString ()
+		path = self:NormalizePath (path)
+		self:Write (path, data)
+		local compiled = GLib.Loader.CompileString (data, path, false)
+		if type (compiled) == "function" then
+			self.CachedFunctions [path] = compiled
+		end
+
+		GLib.CallDelayed( unpackSome )
 	end
-	unpackSome ()
+
+	GLib.CallDelayed( unpackSome )
 end
 
 function self:EnumerateFolder (folderPath, folder, callback)

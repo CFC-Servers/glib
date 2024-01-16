@@ -8,7 +8,7 @@ function GLib.CallDelayed (callback)
 		return
 	end
 	
-	delayedCalls [#delayedCalls + 1] = callback
+	table.insert (delayedCalls, callback)
 end
 
 function GLib.PolledWait (interval, timeout, predicate, callback)
@@ -29,19 +29,19 @@ function GLib.PolledWait (interval, timeout, predicate, callback)
 	)
 end
 
+local paused = false
+local xpcall = xpcall
+local SysTime = SysTime
+local table_remove = table.remove
 hook.Add ("Think", "GLib.DelayedCalls",
 	function ()
-		local lastCalled = nil
+		if paused then return end
+		local GLibError = GLib.Error
+
 		local startTime = SysTime ()
-		while SysTime () - startTime < 0.005 and #delayedCalls > 0 do
-			lastCalled = delayedCalls [1]
-			xpcall (delayedCalls [1], GLib.Error)
-			table.remove (delayedCalls, 1)
-		end
-		
-		if SysTime () - startTime > 0.2 and lastCalled then
-			MsgN ("GLib.DelayedCalls : " .. tostring (lastCalled) .. " took " .. GLib.FormatDuration (SysTime () - startTime) .. ".")
-			GLib.SlowDelayedCalls [#GLib.SlowDelayedCalls + 1] = lastCalled
+		while SysTime () - startTime < 0.0025 and #delayedCalls > 0 do
+			local func = table_remove (delayedCalls, 1)
+			xpcall (func, GLibError)
 		end
 	end
 )

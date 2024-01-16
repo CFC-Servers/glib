@@ -105,8 +105,10 @@ function GLib.AddReloadCommand (includePath, systemName, systemTableName)
 end
 GLib.AddReloadCommand ("glib/glib.lua", "glib", "GLib")
 
-function GLib.Debug (message)
-	-- ErrorNoHalt (message .. "\n")
+local GetConVar = GetConVar
+function GLib.Debug (...)
+	if not GetConVar ("glib_debug_prints"):GetBool() then return end
+	print (...)
 end
 
 function GLib.EnumerateDelayed (tbl, callback, finishCallback)
@@ -297,6 +299,24 @@ function GLib.IncludeDirectory (folder, recursive)
 	end
 end
 
+function GLib.IncludeDirectoryAsync( path, recursive )
+	-- Wrap the include function that IncludeDirectory uses
+	local GLibInclude = GLib.Loader.Include
+
+	-- Hijack the Includes and queue them
+	GLib.Loader.Include = function( includePath )
+		GLib.CallDelayed( function()
+			GLibInclude( includePath )
+		end )
+	end
+
+	-- Run the original function
+	GLib.IncludeDirectory( path, recursive )
+
+	-- Restore the Include function
+	GLib.Loader.Include = GLibInclude
+end
+
 function GLib.InvertTable (tbl, out)
 	out = out or {}
 	
@@ -468,8 +488,6 @@ GLib.AddCSLuaFile ("glib/io/stringoutbuffer.lua")
 GLib.AddCSLuaFolderRecursive ("glib/transfers")
 GLib.AddCSLuaFolderRecursive ("glib/resources")
 GLib.AddCSLuaFolderRecursive ("glib/loader")
-
-GLib.AddCSLuaFile ("glib/addons.lua")
 
 -- Stage 2
 GLib.AddCSLuaPackSystem ("GLib")
