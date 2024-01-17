@@ -449,6 +449,7 @@ elseif CLIENT then
 					return
 				end
 
+				local startTime = SysTime ()
 				local packFileEntry = packFileEntries [i]
 				local packFileSystem = packFileEntries [i].PackFileSystem
 				local fileSize = GLib.FormatFileSize (#packFileEntries [i].Data)
